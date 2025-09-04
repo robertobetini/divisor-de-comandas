@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/people.dart';
+import '../repositories/people_repository.dart';
+
+var peopleRepository = PeopleRepository();
 
 MaterialPageRoute createPeopleFormRoute(BuildContext context, { People? people }) {
   return PeopleFormPageRoute(builder: (context) => PeopleFormPage(title: "Pessoas", people: people,) );
@@ -30,7 +33,6 @@ class _PeopleFormPageState extends State<PeopleFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(people == null ? "Nova pessoa" : "Editar pessoa")
       ),
       body: Column(
@@ -43,7 +45,36 @@ class _PeopleFormPageState extends State<PeopleFormPage> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              if (people?.name == controller.text) {
+                Navigator.pop(context);
+                return;
+              }
+
+              if (peopleRepository.findExactMatch(controller.text) != null) {
+                if (!context.mounted) {
+                  return;
+                }
+
+                await showDialog(
+                  context: context, 
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Erro"),
+                      content: const Text("Nome de pessoa já utilizado"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(), 
+                          child: const Text("OK")
+                        )
+                      ],
+                    );
+                  }
+                );
+                
+                return;
+              }
+
               people ??= People(controller.text);
               people?.name = controller.text;
 

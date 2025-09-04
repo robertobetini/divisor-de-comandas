@@ -2,13 +2,14 @@ import 'package:decimal/decimal.dart';
 import 'package:divisao_contas/models/people.dart';
 import 'package:divisao_contas/repositories/order_repository.dart';
 import 'package:flutter/material.dart';
+import '../../factories/positioned_factory.dart';
 import '../../models/order.dart';
 import '../../repositories/people_repository.dart';
 import 'page_1.dart';
 import 'page_2.dart';
 
-PeopleRepository peopleRepository = PeopleRepository();
-OrderRepository orderRepository = OrderRepository();
+final peopleRepository = PeopleRepository();
+final orderRepository = OrderRepository();
 
 MaterialPageRoute createOrderFormRoute(BuildContext context, { int? orderId }) {
   return OrderFormPageRoute(builder: (context) => OrderFormPage(title: "Nova Conta", orderId: orderId) );
@@ -41,14 +42,41 @@ class _OrderFormPageState extends State<OrderFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final appBarTitle = orderId == null ? "Nova comanda" : "Editar comanda";
-    
+    Widget addPeopleDialogBuilder(BuildContext context) {
+      return AlertDialog(
+        title: const Text("Adicionar pagador"),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text("Selecione um pagador existente"),
+            Autocomplete<People>(  
+              displayStringForOption: (people) => people.name,
+              optionsBuilder: (textEditingValue) => peopleRepository
+                .find(textEditingValue.text)
+                .where((people) => order?.getPayers().where((payer) => payer.people.name == people.name).firstOrNull == null),
+              onSelected: (people) => Navigator.pop(context, people),
+            )
+          ],
+        ),
+        actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context), 
+                child: const Text("Cancelar")
+              )
+            ],
+      );
+    }
 
+    final appBarTitle = orderId == null ? "Nova comanda" : "Editar comanda";
     final descriptionController = TextEditingController(text: order?.description);
+    final pages = [ 
+      createPage1(context, order!, setState, descriptionController), 
+      createPage2(context, order!, setState, descriptionController)
+    ];
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(appBarTitle)
       ),
       body: Stack(
@@ -60,31 +88,9 @@ class _OrderFormPageState extends State<OrderFormPage> {
                 _currentPage = index;
               });
             },
-            children: [
-              createPage1(context, order!, setState, descriptionController),
-              createPage2(context, order!, setState, descriptionController)
-            ],
+            children: pages,
           ),
-          Positioned(
-            bottom: 16,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(2,
-                (index) => AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  margin: EdgeInsets.symmetric(horizontal: 4),
-                  width: _currentPage == index ? 12 : 8,
-                  height: _currentPage == index ? 12 : 8,
-                  decoration: BoxDecoration(
-                    color: _currentPage == index ? Colors.black87 : Colors.black54,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          PositionedFactory.create(pages.length, _currentPage),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -211,26 +217,4 @@ Widget addItemDialogBuilder(BuildContext context) {
   );
 }
 
-Widget addPeopleDialogBuilder(BuildContext context) {
-  return AlertDialog(
-    title: const Text("Adicionar pagador"),
-    content: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text("Selecione um pagador existente"),
-        Autocomplete<People>(  
-          displayStringForOption: (people) => people.name,
-          optionsBuilder: (textEditingValue) => peopleRepository.find(textEditingValue.text),
-          onSelected: (people) => Navigator.pop(context, people),
-        )
-      ],
-    ),
-    actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context), 
-            child: const Text("Cancelar")
-          )
-        ],
-  );
-}
+

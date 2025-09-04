@@ -30,7 +30,6 @@ class _PeoplePageState extends State<PeoplePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title)
       ),
       body: Column(
@@ -64,9 +63,7 @@ class _PeoplePageState extends State<PeoplePage> {
                     var resultado = await Navigator.of(context).push(route);
 
                     if (resultado != null) {
-                      setState((){
-                        peopleRepository.update(resultado as People);
-                      });
+                      setState(() => peopleRepository.update(resultado as People));
                     }
                   },
                 );
@@ -81,9 +78,7 @@ class _PeoplePageState extends State<PeoplePage> {
           var resultado = await Navigator.of(context).push(route);
 
           if (resultado != null) {
-            setState((){
-              peopleRepository.add(resultado as People);
-            });
+            setState(() => peopleRepository.add(resultado as People));
           }
         },
         child: const Icon(Icons.add)

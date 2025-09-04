@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:decimal/decimal.dart';
+import '../../factories/edge_insets_factory.dart';
 import '../../models/order.dart';
 
-var dateFormatter = DateFormat("dd/MM/yyyy");
-var hourFormatter = DateFormat("HH:mm");
+var dateFormatter = DateFormat("dd/MM/yyyy  —  HH:mm");
 
 Widget createPage1(BuildContext context, Order order) {
   var summary = buildSummary(context, order);
@@ -13,7 +13,6 @@ Widget createPage1(BuildContext context, Order order) {
     mainAxisSize: MainAxisSize.min,
     children: [
       Text(dateFormatter.format(order.createdAt)),
-      Text(hourFormatter.format(order.createdAt)),
       Text(order.description ?? ""),
       Expanded(
         child: ListView.builder(
@@ -22,7 +21,7 @@ Widget createPage1(BuildContext context, Order order) {
         )
       ),
       Padding(
-        padding: EdgeInsets.all(15.0),
+        padding: EdgeInsetsFactory.create(ButtonType.bottomButtom),
         child: ElevatedButton(
           onPressed: resolveCloseOrderButtonHandler(context, order), 
           child: const Text("Fechar comanda")

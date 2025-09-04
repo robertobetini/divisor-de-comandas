@@ -5,16 +5,26 @@ import 'package:path/path.dart';
 const String dbName = "app.db";
 
 class DbContext {
-  static var _db = sqlite3.open("");
+  static Database? _db;
 
-  static Database connect() => _db;
+  static Database connect() {
+    if (_db == null) {
+      throw Exception("Db não inicializado!");
+    }
+
+    return _db!;
+  } 
 
   static Future<void> initDb() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final path = join(dir.path, dbName);
-    _db = sqlite3.open(path);
+    if (_db == null) {
+      final dir = await getApplicationDocumentsDirectory();
+      final path = join(dir.path, dbName);
+      _db = sqlite3.open(path);
+    }
 
-    _db.execute('''
+    final db = connect();
+
+    db.execute('''
       CREATE TABLE IF NOT EXISTS Peoples (
         name VARCHAR(64),
         qName VARCHAR(64),
@@ -23,14 +33,14 @@ class DbContext {
       );
     ''');
 
-    _db.execute('''
+    db.execute('''
       CREATE TABLE IF NOT EXISTS Products (
         name VARCHAR(32),
         price TEXT
       );
     ''');
 
-    _db.execute('''
+    db.execute('''
       CREATE TABLE IF NOT EXISTS Orders (
         description VARCHAR(128),
         isClosed INTEGER,
@@ -40,7 +50,7 @@ class DbContext {
       );
     ''');
 
-    _db.execute('''
+    db.execute('''
       CREATE TABLE IF NOT EXISTS OrderItems (
         quantity INTEGER,
         product_id INTEGER,
@@ -51,7 +61,7 @@ class DbContext {
       );
     ''');
 
-    _db.execute('''
+    db.execute('''
       CREATE TABLE IF NOT EXISTS OrderPayerSharings (
         quantity INTEGER,
         orderItem_id INTEGER,
@@ -62,7 +72,7 @@ class DbContext {
       );
     ''');
 
-    _db.execute('''
+    db.execute('''
       CREATE TABLE IF NOT EXISTS Payers (
         people_id INTEGER,
         order_id INTEGER,
@@ -73,15 +83,48 @@ class DbContext {
     ''');
   }
 
+  static Future<void> resetDb() async {
+    final db = connect();
+
+    await executeInTransactionAsync(() async {
+      db.execute("DROP TABLE IF EXISTS Peoples");
+      db.execute("DROP TABLE IF EXISTS Products");
+      db.execute("DROP TABLE IF EXISTS Orders");
+      db.execute("DROP TABLE IF EXISTS OrderItems");
+      db.execute("DROP TABLE IF EXISTS OrderPayerSharings");
+      db.execute("DROP TABLE IF EXISTS Payers");
+      await initDb();
+    }, database: db);
+  }
+
   static T? executeInTransaction<T>(T Function() func, { Database? database }) {
+    final db = database ?? connect();
+
     try {
-      _db.execute("BEGIN TRANSACTION");
+      db.execute("BEGIN TRANSACTION");
       var result = func();
-      _db.execute("COMMIT");
+      db.execute("COMMIT");
       
       return result;
     } catch(e) {
-      _db.execute("ROLLBACK");
+      db.execute("ROLLBACK");
+      print('Erro na transação: $e');
+    }
+
+    return null;
+  }
+
+  static Future<T?> executeInTransactionAsync<T>(Future<T> Function() func, { Database? database }) async {
+    final db = database ?? connect();
+
+    try {
+      db.execute("BEGIN TRANSACTION");
+      var result = await func();
+      db.execute("COMMIT");
+      
+      return result;
+    } catch(e) {
+      db.execute("ROLLBACK");
       print('Erro na transação: $e');
     }
 

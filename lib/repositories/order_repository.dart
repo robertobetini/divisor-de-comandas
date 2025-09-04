@@ -138,7 +138,7 @@ class OrderRepository {
 
       final orderPayerSharings = db
         .select('''
-          SELECT ops.rowid AS orderPayerSharings_rowid, * 
+          SELECT ops.rowid AS orderPayerSharings_rowid, ops.quantity AS orderPayerSharings_quantity, * 
           FROM Orders o
           LEFT JOIN OrderItems oi ON o.rowid = oi.order_id
           LEFT JOIN OrderPayerSharings ops ON oi.rowid = ops.orderItem_id
@@ -155,8 +155,9 @@ class OrderRepository {
 
         final orderPayerSharings = OrderPayerSharings.fromDb(
           row["orderPayerSharings_rowid"], 
-          payer.people, 
-          orderItem
+          payer, 
+          orderItem,
+          row["orderPayerSharings_quantity"]
         );
 
         payer.sharings.add(orderPayerSharings);
@@ -220,7 +221,7 @@ class OrderRepository {
 
       final orderPayerSharings = db
         .select('''
-          SELECT ops.rowid AS orderPayerSharings_rowid, * 
+          SELECT ops.rowid AS orderPayerSharings_rowid, ops.quantity AS orderPayerSharings_quantity, * 
           FROM Orders o
           LEFT JOIN OrderItems oi ON o.rowid = oi.order_id
           LEFT JOIN OrderPayerSharings ops ON oi.rowid = ops.orderItem_id
@@ -237,8 +238,9 @@ class OrderRepository {
 
         final orderPayerSharings = OrderPayerSharings.fromDb(
           row["orderPayerSharings_rowid"], 
-          payer.people, 
-          orderItem
+          payer, 
+          orderItem,
+          row["orderPayerSharings_quantity"]
         );
 
         payer.sharings.add(orderPayerSharings);

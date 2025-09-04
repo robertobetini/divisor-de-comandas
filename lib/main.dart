@@ -18,7 +18,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Divisor de comandas',
-      theme: darkTheme,
+      theme: darkGreenTheme,
       home: const HomePage(title: 'Divisor de comandas'),
     );
   }

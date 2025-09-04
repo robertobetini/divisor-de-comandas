@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../factories/edge_insets_factory.dart';
 import '../../models/order.dart';
 import '../utils.dart';
 
@@ -69,61 +70,59 @@ Widget createPage2(BuildContext context, Order order, Function setState, TextEdi
                 ),
                 trailing: IconButton(
                   onPressed: () {
-
+                    setState(() => order.removeSharing(sharing.id));
                   }, 
-                  icon: Icon(Icons.delete)
+                  icon: Icon(Icons.delete_outline)
                 ),
               );
 
               children.add(item);
             }
 
-            var addItemLinkButton = SizedBox(
-              width: 200,
-              child: ListTile(
-                title: OutlinedButton(
-                  onPressed: () async {
-                    var result = await showDialog(
-                      context: context, 
-                      builder: linkDialogBuilder
-                    );
+            var addItemLinkButton = ListTile(
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () async {
+                        var result = await showDialog(
+                          context: context, 
+                          builder: deleteItemDialogBuilder
+                        );
 
-                    if (result != null) {
-                      setState(() => order.linkPayerToItem(result as OrderItem, payer));
-                    }
-                  }, 
-                  child: const Text("Relacionar item")
+                        if (result == true) {
+                          setState(() => order.removePayer(payer.id));
+                        }
+                      }, 
+                      child: const Text("Deletar pagador")
+                    ),
+                    OutlinedButton(
+                      onPressed: () async {
+                        var result = await showDialog(
+                          context: context, 
+                          builder: linkDialogBuilder
+                        );
+
+                        if (result != null) {
+                          setState(() => order.linkPayerToItem(result as OrderItem, payer));
+                        }
+                      }, 
+                      child: const Text("Relacionar item")
+                    )
+                  ],
                 )
-              )
-            );
+              );
             children.add(addItemLinkButton);
 
             return ExpansionTile(
-              leading: Icon(Icons.arrow_drop_down),
               title: Text(payer.people.name),
-              trailing: IconButton(
-                onPressed: () async {
-                  var isRemovalConfirmed = await showDialog(
-                    context: context, 
-                    builder: deleteItemDialogBuilder
-                  );
-
-                  if (isRemovalConfirmed == true) {
-                    setState(() => order.removePayer(payer.people.id));
-                  }
-                }, 
-                icon: Icon(Icons.delete),
-              ),
-              onExpansionChanged: (expanded) {
-                
-              },
-              children: children,
+              children: children
             );
           }
         )
       ),
       Padding(
-        padding: EdgeInsets.all(15.0),
+        padding: EdgeInsetsFactory.create(ButtonType.bottomButtom),
         child: ElevatedButton(
           onPressed: () {
             order.description = descriptionController.text;

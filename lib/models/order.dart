@@ -29,7 +29,7 @@ class Order {
 
   void addPayer(Payer payer) {
     for (var existingPayer in _payers) {
-      if (existingPayer.id == payer.id) {
+      if (existingPayer.people.id == payer.people.id) {
         return;
       }
     }
@@ -44,47 +44,29 @@ class Order {
     return item;
   }
 
-  void removePayer(int peopleId) {
-    Payer? foundPayer;
-
-    for (var payer in _payers) {
-      if (payer.people.id == peopleId) {
-        foundPayer = payer;
-      }
-    }
-
-    _payers.remove(foundPayer);
+  void removePayer(int payerId) {
+    _payers.removeWhere((p) => p.id == payerId);
 
     for (var item in _items) {
-      List<OrderPayerSharings> foundSharings = [];
-
-      for (var sharing in item.sharings) {
-        if (sharing.people.id == peopleId) {
-          foundSharings.add(sharing);
-        }
-      }
-
-      for (var foundSharing in foundSharings) {
-        item.sharings.remove(foundSharing);
-      }
+      item.sharings.removeWhere((s) => s.payer.id == payerId);
     }
   }
 
   void removeItem(String productName) {
-    OrderItem? foundItem;
-
-    for (var item in _items) {
-      if (item.product.name == productName) {
-        foundItem = item; 
-      }      
-    }
-
-    if (foundItem != null) {
-      _items.remove(foundItem);
-    }
+    _items.removeWhere((i) => i.product.name == productName);
 
     for (var payer in _payers) {
       payer.sharings.removeWhere((s) => s.orderItem.product.name == productName);
+    }
+  }
+
+  void removeSharing(int sharingId) {
+    for (var payer in _payers) {
+      payer.sharings.removeWhere((s) => s.id == sharingId);
+    }
+
+    for (var item in _items) {
+      item.sharings.removeWhere((s) => s.id == sharingId);
     }
   }
 
@@ -106,7 +88,7 @@ class Order {
       throw Exception("Pagador não encontrado na comanda!");
     }
 
-    var orderPayerSharings = OrderPayerSharings(payer.people, item);
+    var orderPayerSharings = OrderPayerSharings(payer, item);
 
     item.sharings.add(orderPayerSharings);
     payer.sharings.add(orderPayerSharings);
@@ -186,11 +168,11 @@ class Payer {
 }
 
 class OrderPayerSharings {
-  OrderPayerSharings(this.people, this.orderItem);
-  OrderPayerSharings.fromDb(this.id, this.people, this.orderItem);
+  OrderPayerSharings(this.payer, this.orderItem);
+  OrderPayerSharings.fromDb(this.id, this.payer, this.orderItem, this.quantity);
 
   int id = 0;
-  final People people;
+  final Payer payer;
   final OrderItem orderItem;
   bool isIndividual = false;
   int quantity = 1;
@@ -204,7 +186,7 @@ class OrderPayerSharings {
         .length;
 
       var totalRational = orderItem.product.price / Decimal.fromInt(sharerCount);
-      total += totalRational.toDecimal();
+      total += totalRational.toDecimal(scaleOnInfinitePrecision: 3);
     }
 
     return total; 

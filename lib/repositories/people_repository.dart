@@ -49,6 +49,13 @@ class PeopleRepository {
       .toList();
   }
 
+  People? findExactMatch(String name) {
+    return db
+      .select("SELECT rowid, * FROM Peoples WHERE name = ?", [name])
+      .map<People>((row) => People.fromDb(row["rowid"], row["name"], row["createdAt"]))
+      .firstOrNull;
+  }
+
   void remove(int id) {
     final stmt = db.prepare("UPDATE Peoples SET isDeleted = 1, name = 'Desconhecido' WHERE rowid = ?");
     stmt.execute([id]);

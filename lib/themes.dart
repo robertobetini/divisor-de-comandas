@@ -50,3 +50,52 @@ final ThemeData darkTheme = ThemeData(
     leadingAndTrailingTextStyle: TextStyle(fontSize: 14)
   )
 );
+
+final ThemeData darkGreenTheme = ThemeData(
+  brightness: Brightness.dark,
+  scaffoldBackgroundColor: const Color(0xFF121312), // quase preto, verde bem sutil
+  colorScheme: const ColorScheme.dark(
+    primary: Color(0xFFE0E0E0), // texto destacado (cinza claro)
+    secondary: Color(0xFFA8A8A8), // labels (cinza médio com nuance verde)
+    surface: Color(0xFF1C1D1C), // cards/painéis (cinza esverdeado bem leve)
+    error: Color(0xFFB5B5B5), // cinza claro mais frio
+    onPrimary: Color(0xFF121312),
+    onSecondary: Color(0xFF121312),
+    onSurface: Color(0xFFE0E0E0),
+    onError: Color(0xFF121312),
+  ),
+  dividerColor: const Color(0xFF2C2E2C), // divisória cinza neutra com viés verde
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Color(0xFF1C1D1C),
+    titleTextStyle: TextStyle(color: Color(0xFFE0E0E0), fontSize: 18),
+    iconTheme: IconThemeData(color: Color(0xFFE0E0E0)),
+  ),
+  textTheme: const TextTheme(
+    bodyLarge: TextStyle(color: Color(0xFFE0E0E0)),
+    bodyMedium: TextStyle(color: Color(0xFFA8A8A8)),
+  ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFFCFCFCF), // quase cinza puro
+      foregroundColor: const Color(0xFF121312), // texto escuro
+      textStyle: const TextStyle(fontWeight: FontWeight.bold),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+    ),
+  ),
+  outlinedButtonTheme: OutlinedButtonThemeData(
+    style: OutlinedButton.styleFrom(
+      foregroundColor: const Color(0xFFE0E0E0),
+      side: const BorderSide(color: Color(0xFFE0E0E0)),
+    ),
+  ),
+  expansionTileTheme: ExpansionTileThemeData(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+    backgroundColor: const Color.fromARGB(15, 200, 220, 200), // cinza esverdeado leve
+    collapsedBackgroundColor: Colors.transparent,
+  ),
+  listTileTheme: const ListTileThemeData(
+    leadingAndTrailingTextStyle: TextStyle(fontSize: 14, color: Color(0xFFE0E0E0)),
+  ),
+);

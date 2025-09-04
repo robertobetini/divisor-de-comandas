@@ -32,7 +32,6 @@ class _OrderPageState extends State<OrderPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
       body: Column(
@@ -56,7 +55,14 @@ class _OrderPageState extends State<OrderPage> {
                       setState(() => orderRepository.update(result as Order));
                     }
                   },
-                  onLongPress: resolveEditOrderHandler(context, order, index, setState),
+                  onLongPress: order.isClosed ? null : () async {
+                    var route = createOrderFormRoute(context, orderId: order.id);
+                    var result = await Navigator.of(context).push(route);
+
+                    if (result != null) {
+                      setState(() => orderRepository.update(result as Order));
+                    }
+                  }
                 );
               },
             )
@@ -76,19 +82,4 @@ class _OrderPageState extends State<OrderPage> {
       ),
     );
   }
-}
-
-VoidCallback? resolveEditOrderHandler(BuildContext context, Order order, int index, Function setState) {
-  if (order.isClosed) {
-    return null;
-  }
-
-  return () async {
-    var route = createOrderFormRoute(context, orderId: order.id);
-    var result = await Navigator.of(context).push(route);
-
-    if (result != null) {
-      setState(() => orderRepository.update(result as Order));
-    }
-  };
 }
