@@ -1,3 +1,4 @@
+import 'package:divisao_contas/custom_widgets/padded_list_view.dart';
 import 'package:flutter/material.dart';
 import '../repositories/people_repository.dart';
 import 'people_form_page.dart';
@@ -35,21 +36,18 @@ class _PeoplePageState extends State<PeoplePage> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
+            child: PaddedListView(
               itemCount: peoples.length,
               itemBuilder: (context, index) {
                 var people = peoples[index];
-                return ListTile(
-                  title: Padding(
-                    padding: EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 0.0),
-                    child: Text(people.name)
-                  ),
+                return PaddedListTile(
+                  title: Text(people.name),
                   trailing: IconButton(
                     onPressed: () async { 
                       var isRemovalConfirmed = await showDialog(
                         context: context, 
                         builder: deleteItemDialogBuilder
-                      );  
+                      );
 
                       if (isRemovalConfirmed == true) {
                         setState(() => peopleRepository.remove(people.id));

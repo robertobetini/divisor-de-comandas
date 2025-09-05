@@ -163,7 +163,14 @@ class Payer {
     return subtotal;
   }
 
-  Decimal getTotal() => getSubtotal() + getServiceCharge();
+  Decimal getTotal(bool hasServiceCharge) {
+    if (hasServiceCharge) {
+      return getSubtotal() + getServiceCharge();
+    }
+
+    return getSubtotal();
+  }
+   
   Decimal getServiceCharge() => getSubtotal() * Decimal.parse("0.1");
 }
 

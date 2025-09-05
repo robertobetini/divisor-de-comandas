@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class PositionedFactory {
+class PageIndicatorFactory {
   static Positioned create(int pageCount, int currentPage) {
     return Positioned(
       bottom: 28,
@@ -15,7 +15,7 @@ class PositionedFactory {
             width: currentPage == index ? 12 : 8,
             height: currentPage == index ? 12 : 8,
             decoration: BoxDecoration(
-              color: currentPage == index ? const Color(0xFFE0E0E0) : const Color(0xFFA8A8A8),
+              color: currentPage == index ? const Color(0xFF8C75A8) : const Color(0xFF8E839A),
               shape: BoxShape.circle,
             ),
           ),

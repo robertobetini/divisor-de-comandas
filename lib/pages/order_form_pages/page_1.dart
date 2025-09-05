@@ -1,3 +1,4 @@
+import 'package:divisao_contas/custom_widgets/padded_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
 import '../../models/order.dart';
@@ -38,11 +39,11 @@ Widget createPage1(BuildContext context, Order order, Function setState, TextEdi
           ),
         ),
       Expanded(
-        child: ListView.builder(
+        child: PaddedListView(
           itemCount: orderItems.length,
           itemBuilder: (context, index) {
             var item = orderItems[index];
-            return ListTile(
+            return PaddedListTile(
               leading: Text("${item.quantity}x"),
               title: Text(item.product.name),
               subtitle: Text("\$${item.product.price.toStringAsFixed(2)} / un."),

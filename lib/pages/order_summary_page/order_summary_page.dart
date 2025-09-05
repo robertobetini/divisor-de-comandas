@@ -1,4 +1,4 @@
-import 'package:divisao_contas/factories/positioned_factory.dart';
+import 'package:divisao_contas/factories/page_indicator_factory.dart';
 import 'package:flutter/material.dart';
 import '../../repositories/order_repository.dart';
 import '../../models/order.dart';
@@ -54,7 +54,7 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
             },
             children: pages
           ),
-          PositionedFactory.create(pages.length, _currentPage),
+          PageIndicatorFactory.create(pages.length, _currentPage),
         ],
       )
     );

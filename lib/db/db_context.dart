@@ -81,6 +81,14 @@ class DbContext {
         FOREIGN KEY (order_id) REFERENCES Orders(rowid) ON DELETE CASCADE
       );
     ''');
+
+    db.execute('''
+      CREATE TABLE IF NOT EXISTS Settings (
+        key TEXT UNIQUE,
+        valueType TEXT,
+        value TEXT
+      );
+    ''');
   }
 
   static Future<void> resetDb() async {
@@ -93,6 +101,7 @@ class DbContext {
       db.execute("DROP TABLE IF EXISTS OrderItems");
       db.execute("DROP TABLE IF EXISTS OrderPayerSharings");
       db.execute("DROP TABLE IF EXISTS Payers");
+      db.execute("DROP TABLE IF EXISTS Settings");
       await initDb();
     }, database: db);
   }

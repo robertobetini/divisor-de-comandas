@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../custom_widgets/padded_list_view.dart';
 import 'order_form_pages/order_form_page.dart';
 import 'order_summary_page/order_summary_page.dart';
 import '../repositories/order_repository.dart';
@@ -37,12 +38,12 @@ class _OrderPageState extends State<OrderPage> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
+            child: PaddedListView(
               itemCount: orders.length,
               itemBuilder: (context, index) {
                 var order = orders[index];
 
-                return ListTile(
+                return PaddedListTile(
                   leading: order.isClosed ? Icon(Icons.check_circle_outline) : const Text(""),
                   title: Text(dateFormatter.format(order.createdAt)),
                   subtitle: Text(order.description ?? ""),

@@ -1,3 +1,4 @@
+import 'package:divisao_contas/custom_widgets/padded_list_view.dart';
 import 'package:flutter/material.dart';
 import '../../factories/edge_insets_factory.dart';
 import '../../models/order.dart';
@@ -33,7 +34,7 @@ Widget createPage2(BuildContext context, Order order, Function setState, TextEdi
         )
       ),
       Expanded(
-        child: ListView.builder(
+        child: PaddedListView(
           itemCount: payers.length,
           itemBuilder: (context, index) {
             var payer = payers[index];
@@ -114,7 +115,7 @@ Widget createPage2(BuildContext context, Order order, Function setState, TextEdi
               );
             children.add(addItemLinkButton);
 
-            return ExpansionTile(
+            return PaddedExpansionTile(
               title: Text(payer.people.name),
               children: children
             );

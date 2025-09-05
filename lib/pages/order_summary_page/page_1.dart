@@ -12,7 +12,10 @@ Widget createPage1(BuildContext context, Order order) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Text(dateFormatter.format(order.createdAt)),
+      Padding(
+        padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+        child: Text(dateFormatter.format(order.createdAt))
+      ),
       Text(order.description ?? ""),
       Expanded(
         child: ListView.builder(

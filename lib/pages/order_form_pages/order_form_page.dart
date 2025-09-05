@@ -2,7 +2,7 @@ import 'package:decimal/decimal.dart';
 import 'package:divisao_contas/models/people.dart';
 import 'package:divisao_contas/repositories/order_repository.dart';
 import 'package:flutter/material.dart';
-import '../../factories/positioned_factory.dart';
+import '../../factories/page_indicator_factory.dart';
 import '../../models/order.dart';
 import '../../repositories/people_repository.dart';
 import 'page_1.dart';
@@ -90,7 +90,7 @@ class _OrderFormPageState extends State<OrderFormPage> {
             },
             children: pages,
           ),
-          PositionedFactory.create(pages.length, _currentPage),
+          PageIndicatorFactory.create(pages.length, _currentPage),
         ],
       ),
       floatingActionButton: FloatingActionButton(

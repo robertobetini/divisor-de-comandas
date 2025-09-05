@@ -2,34 +2,32 @@ import 'package:flutter/material.dart';
 
 final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
-  scaffoldBackgroundColor: const Color(0xFF121212),
+  scaffoldBackgroundColor: const Color(0xFF181818), // fundo um pouco mais claro
   colorScheme: const ColorScheme.dark(
-    primary: Color(0xFFE0E0E0), // texto destacado
-    secondary: Color(0xFFA0A0A0), // labels
-    surface: Color(0xFF1E1E1E),
-    background: Color(0xFF121212),
-    error: Color(0xFFB0B0B0), // cinza mais claro
-    onPrimary: Color(0xFF121212),
-    onSecondary: Color(0xFF121212),
-    onSurface: Color(0xFFE0E0E0),
-    onBackground: Color(0xFFE0E0E0),
-    onError: Color(0xFF121212),
+    primary: Color(0xFFCCCCCC), // texto destacado mais suave
+    secondary: Color(0xFF999999), // labels
+    surface: Color(0xFF222222), // cards/painéis mais claros
+    error: Color(0xFFA6A6A6), // cinza intermediário
+    onPrimary: Color(0xFF181818),
+    onSecondary: Color(0xFF181818),
+    onSurface: Color(0xFFCCCCCC),
+    onError: Color(0xFF181818),
   ),
-  dividerColor: const Color(0xFF2E2E2E),
+  dividerColor: const Color(0xFF2A2A2A),
   appBarTheme: const AppBarTheme(
-    backgroundColor: Color(0xFF1E1E1E),
-    titleTextStyle: TextStyle(color: Color(0xFFE0E0E0), fontSize: 18),
-    iconTheme: IconThemeData(color: Color(0xFFE0E0E0)),
+    backgroundColor: Color(0xFF222222),
+    titleTextStyle: TextStyle(color: Color(0xFFCCCCCC), fontSize: 18),
+    iconTheme: IconThemeData(color: Color(0xFFCCCCCC)),
   ),
   textTheme: const TextTheme(
-    bodyLarge: TextStyle(color: Color(0xFFE0E0E0)),
-    bodyMedium: TextStyle(color: Color(0xFFA0A0A0)),
+    bodyLarge: TextStyle(color: Color(0xFFCCCCCC)),
+    bodyMedium: TextStyle(color: Color(0xFF999999)),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: const Color.fromARGB(255, 200, 200, 200), // cinza claro
-      foregroundColor: const Color(0xFF121212), // texto escuro
-      textStyle: const TextStyle(fontWeight: FontWeight.bold),
+      backgroundColor: const Color(0xFFB5B5B5), // menos branco, mais cinza médio
+      foregroundColor: const Color(0xFF181818),
+      textStyle: const TextStyle(fontWeight: FontWeight.w600),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
@@ -37,65 +35,81 @@ final ThemeData darkTheme = ThemeData(
   ),
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
-      foregroundColor: const Color(0xFFE0E0E0),
-      side: const BorderSide(color: Color(0xFFE0E0E0)),
+      foregroundColor: const Color(0xFFCCCCCC),
+      side: const BorderSide(color: Color(0xFFCCCCCC)),
     ),
   ),
   expansionTileTheme: ExpansionTileThemeData(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-    backgroundColor: const Color.fromARGB(15, 255, 255, 255),
-    collapsedBackgroundColor: Colors.transparent,
-  ),
-  listTileTheme: ListTileThemeData(
-    leadingAndTrailingTextStyle: TextStyle(fontSize: 14)
-  )
-);
-
-final ThemeData darkGreenTheme = ThemeData(
-  brightness: Brightness.dark,
-  scaffoldBackgroundColor: const Color(0xFF121312), // quase preto, verde bem sutil
-  colorScheme: const ColorScheme.dark(
-    primary: Color(0xFFE0E0E0), // texto destacado (cinza claro)
-    secondary: Color(0xFFA8A8A8), // labels (cinza médio com nuance verde)
-    surface: Color(0xFF1C1D1C), // cards/painéis (cinza esverdeado bem leve)
-    error: Color(0xFFB5B5B5), // cinza claro mais frio
-    onPrimary: Color(0xFF121312),
-    onSecondary: Color(0xFF121312),
-    onSurface: Color(0xFFE0E0E0),
-    onError: Color(0xFF121312),
-  ),
-  dividerColor: const Color(0xFF2C2E2C), // divisória cinza neutra com viés verde
-  appBarTheme: const AppBarTheme(
-    backgroundColor: Color(0xFF1C1D1C),
-    titleTextStyle: TextStyle(color: Color(0xFFE0E0E0), fontSize: 18),
-    iconTheme: IconThemeData(color: Color(0xFFE0E0E0)),
-  ),
-  textTheme: const TextTheme(
-    bodyLarge: TextStyle(color: Color(0xFFE0E0E0)),
-    bodyMedium: TextStyle(color: Color(0xFFA8A8A8)),
-  ),
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: const Color(0xFFCFCFCF), // quase cinza puro
-      foregroundColor: const Color(0xFF121312), // texto escuro
-      textStyle: const TextStyle(fontWeight: FontWeight.bold),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-    ),
-  ),
-  outlinedButtonTheme: OutlinedButtonThemeData(
-    style: OutlinedButton.styleFrom(
-      foregroundColor: const Color(0xFFE0E0E0),
-      side: const BorderSide(color: Color(0xFFE0E0E0)),
-    ),
-  ),
-  expansionTileTheme: ExpansionTileThemeData(
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-    backgroundColor: const Color.fromARGB(15, 200, 220, 200), // cinza esverdeado leve
+    backgroundColor: const Color.fromARGB(10, 255, 255, 255), // menos destaque
     collapsedBackgroundColor: Colors.transparent,
   ),
   listTileTheme: const ListTileThemeData(
-    leadingAndTrailingTextStyle: TextStyle(fontSize: 14, color: Color(0xFFE0E0E0)),
+    leadingAndTrailingTextStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC)),
   ),
+);
+
+final ThemeData lightPurpleTheme = ThemeData(
+  brightness: Brightness.light,
+  scaffoldBackgroundColor: const Color(0xFFE6E0EE),
+  cardColor: const Color(0xFFE6E0EE),
+  splashColor: const Color(0xFFB5A2CC),
+  highlightColor: const Color(0x88CEC1DD),
+  colorScheme: const ColorScheme.light(
+    primary: Color(0xFF2C2C54),
+    secondary: Color(0xFF606090),
+    surface: Color(0xFFECECF5),
+    error: Color(0xFF8C6FAF),
+    onPrimary: Color(0xFFF5F6FA),
+    onSecondary: Color(0xFFF5F6FA),
+    onSurface: Color(0xFF2C2C54),
+    onError: Color(0xFFF5F6FA),
+    background: const Color(0xFFE6E0EE),
+  ),
+  dividerColor: const Color(0xFFD0D0E6),
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Color(0xFF8C6FAF),
+    titleTextStyle: TextStyle(fontSize: 18),
+    iconTheme: IconThemeData(color: Color(0xFFF5F6FA)),
+  ),
+  textTheme: const TextTheme(
+    bodyLarge: TextStyle(color: Color(0xFF2C2C54)),
+    bodyMedium: TextStyle(color: Color(0xFF606090)),
+  ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFF8C6FAF),
+      foregroundColor: const Color(0xFFF5F6FA),
+      textStyle: const TextStyle(fontWeight: FontWeight.bold),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+    ),
+  ),
+  outlinedButtonTheme: OutlinedButtonThemeData(
+    style: OutlinedButton.styleFrom(
+      foregroundColor: const Color(0xFF2C2C54),
+      side: const BorderSide(color: Color(0xFF2C2C54)),
+    ),
+  ),
+  expansionTileTheme: ExpansionTileThemeData(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.zero)),
+    backgroundColor: const Color(0xCCB5A2CC),
+    collapsedBackgroundColor: const Color(0xBBCEC1DD)
+  ),
+  listTileTheme: ListTileThemeData(
+    selectedColor: Color(0xFF8C6FAF),
+    selectedTileColor: Color(0xFF8C6FAF),
+    iconColor: const Color(0xFF281D35),
+    leadingAndTrailingTextStyle: TextStyle(fontSize: 14, color: Color(0xFF2C2C54)),
+  ),
+  floatingActionButtonTheme: FloatingActionButtonThemeData(
+    backgroundColor: const Color(0xFF8C6FAF),
+    foregroundColor: const Color(0xFFF5F6FA),
+  ),
+  dialogTheme: DialogThemeData(
+    backgroundColor: const Color(0xFFE6E0EE),
+    shadowColor: const Color(0xFF1E1627),
+    iconColor: const Color(0xFF1E1627)
+  )
 );
