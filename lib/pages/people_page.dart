@@ -1,5 +1,6 @@
 import 'package:divisao_contas/custom_widgets/padded_list_view.dart';
 import 'package:flutter/material.dart';
+import '../constants.dart';
 import '../repositories/people_repository.dart';
 import 'people_form_page.dart';
 import '../models/people.dart';
@@ -53,7 +54,7 @@ class _PeoplePageState extends State<PeoplePage> {
                         setState(() => peopleRepository.remove(people.id));
                       }
                     },
-                    icon: Icon(Icons.delete)
+                    icon: Icon(Icons.delete, color: Constants.dangerColor)
                   ),
                   onLongPress: () async {
                     var people = peoples[index];
@@ -79,7 +80,7 @@ class _PeoplePageState extends State<PeoplePage> {
             setState(() => peopleRepository.add(resultado as People));
           }
         },
-        child: const Icon(Icons.add)
+        child: const Icon(Icons.person_add_alt_1)
       ),
     );
   }

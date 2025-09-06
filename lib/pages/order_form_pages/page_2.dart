@@ -1,24 +1,53 @@
 import 'package:divisao_contas/custom_widgets/padded_list_view.dart';
+import 'package:divisao_contas/factories/counter_factory.dart';
 import 'package:flutter/material.dart';
-import '../../factories/edge_insets_factory.dart';
+import '../../constants.dart';
 import '../../models/order.dart';
 import '../utils.dart';
 
+var isIndividual = false;
+
 Widget createPage2(BuildContext context, Order order, Function setState, TextEditingController descriptionController) {
-  Widget linkDialogBuilder(BuildContext context) {
-    return AlertDialog(
-      title: const Text("Relacionar item"),
-      content: Autocomplete<OrderItem>(
-        displayStringForOption: (item) => item.product.name,
-        optionsBuilder: (textEditingValue) => order.findItem(textEditingValue.text),
-        onSelected: (item) => Navigator.pop(context, item),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context), 
-          child: const Text("Cancelar")
-        )
-      ],
+  StatefulBuilder linkDialogBuilder(BuildContext context) {
+    return StatefulBuilder(
+      builder: (context, dialogSetState) {
+        return AlertDialog(
+          title: const Text("Relacionar item"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  isIndividual ? const Text("Individual") : const Text("Compartilhado"),
+                  Switch(
+                    thumbIcon: WidgetStateProperty.resolveWith((states) => 
+                      states.contains(WidgetState.selected) 
+                        ? Icon(Icons.person)
+                        : Icon(Icons.group)
+                    ),
+                    value: isIndividual,
+                    onChanged: (value) {
+                      dialogSetState(() => isIndividual = value);
+                    },
+                  ),
+                ],
+              ),
+              Autocomplete<OrderItem>(
+                displayStringForOption: (item) => item.product.name,
+                optionsBuilder: (textEditingValue) => order.findItem(textEditingValue.text),
+                onSelected: (item) => Navigator.pop(context, (item, isIndividual)),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), 
+              child: const Text("Cancelar")
+            )
+          ],
+        );
+      }
     );
   }
 
@@ -42,38 +71,35 @@ Widget createPage2(BuildContext context, Order order, Function setState, TextEdi
 
             for (var sharing in payer.sharings) {
               var item = ListTile(
+                contentPadding: EdgeInsets.zero,
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.remove),
-                          onPressed: () => setState(() {
-                            if (sharing.quantity > 0) {
-                              sharing.quantity--;
-                            }
-                          }),
-                        ),
-                        Text("${sharing.quantity}"),
-                        IconButton(
-                          icon: Icon(Icons.add),
-                          onPressed: () => setState(() { 
-                            if (sharing.quantity < sharing.orderItem.quantity) {
-                              sharing.quantity++;
-                            }
-                          }),
-                        ),
-                      ],
+                    CounterFactory.create(
+                      quantity: sharing.quantity,
+                      padding: 2,
+                      onRemove: () => setState(() {
+                        if (sharing.quantity > 1) {
+                          sharing.quantity--;
+                        }
+                      }),
+                      onAdd: () => setState(() { 
+                        // TODO mover essa lógica do isIndividual para o OrderItem em ver do Sharing
+                        if (sharing.quantity < sharing.getAvailableQuantity()) {
+                          sharing.quantity++;
+                        }
+                      })
                     ),
-                    Text(sharing.orderItem.product.name)
+                    Text(sharing.orderItem.product.name),
+                    SizedBox(width: 4),
+                    resolveSharingTypeButton(sharing.isIndividual)
                   ],
                 ),
                 trailing: IconButton(
                   onPressed: () {
-                    setState(() => order.removeSharing(sharing.id));
+                    setState(() => order.removeSharing(sharing));
                   }, 
-                  icon: Icon(Icons.delete_outline)
+                  icon: Icon(Icons.delete, color: Constants.dangerColor)
                 ),
               );
 
@@ -81,38 +107,43 @@ Widget createPage2(BuildContext context, Order order, Function setState, TextEdi
             }
 
             var addItemLinkButton = ListTile(
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    OutlinedButton(
-                      onPressed: () async {
-                        var result = await showDialog(
-                          context: context, 
-                          builder: deleteItemDialogBuilder
-                        );
+              contentPadding: EdgeInsets.symmetric(horizontal: 10),
+              title: Row(
+                spacing: 20,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: Constants.dangerColor),
+                    onPressed: () async {
+                      var result = await showDialog(
+                        context: context, 
+                        builder: deleteItemDialogBuilder
+                      );
 
-                        if (result == true) {
-                          setState(() => order.removePayer(payer.id));
-                        }
-                      }, 
-                      child: const Text("Deletar pagador")
-                    ),
-                    OutlinedButton(
-                      onPressed: () async {
-                        var result = await showDialog(
-                          context: context, 
-                          builder: linkDialogBuilder
-                        );
+                      if (result == true) {
+                        setState(() => order.removePayer(payer.id));
+                      }
+                    }, 
+                    child: const Icon(Icons.person_remove, size: 20)
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: Constants.soothingColor),
+                    onPressed: () async {
+                      var result = await showDialog(
+                        context: context, 
+                        builder: linkDialogBuilder
+                      );
 
-                        if (result != null) {
-                          setState(() => order.linkPayerToItem(result as OrderItem, payer));
-                        }
-                      }, 
-                      child: const Text("Relacionar item")
-                    )
-                  ],
-                )
-              );
+                      if (result != null) {
+                        var (orderItem, isIndividual) = result as (OrderItem, bool);
+                        setState(() => order.linkPayerToItem(orderItem, payer, isIndividual));
+                      }
+                    }, 
+                    child: const Icon(Icons.library_add, size: 20)
+                  )
+                ],
+              )
+            );
             children.add(addItemLinkButton);
 
             return PaddedExpansionTile(
@@ -121,19 +152,9 @@ Widget createPage2(BuildContext context, Order order, Function setState, TextEdi
             );
           }
         )
-      ),
-      Padding(
-        padding: EdgeInsetsFactory.create(ButtonType.bottomButtom),
-        child: ElevatedButton(
-          onPressed: () {
-            order.description = descriptionController.text;
-            order.updateTotalPrice();
-            Navigator.pop(context, order);
-          },
-          child: const Text("Salvar")
-        )
       )
     ],
   );
 }
 
+Icon resolveSharingTypeButton(bool isIndividual) => isIndividual ? const Icon(Icons.person) : const Icon(Icons.group);

@@ -66,6 +66,7 @@ class DbContext {
         quantity INTEGER,
         orderItem_id INTEGER,
         payer_id INTEGER,
+        isIndividual INTEGER,
 
         FOREIGN KEY (orderItem_id) REFERENCES OrderItems(rowid) ON DELETE CASCADE,
         FOREIGN KEY (payer_id) REFERENCES Payers(rowid) ON DELETE CASCADE

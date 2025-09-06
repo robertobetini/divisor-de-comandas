@@ -36,9 +36,13 @@ class _SettingsPageState extends State<SettingsPage> {
       body: Column(
         children: [
           ListTile(
-            leading: isDarkModeOn ? Icon(Icons.dark_mode) : Icon(Icons.light_mode),
+            leading: Icon(Icons.contrast),
             title: const Text("Tema escuro"),
-            trailing: Switch(
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                isDarkModeOn ? Icon(Icons.dark_mode) : Icon(Icons.light_mode),
+                Switch(
               value: isDarkModeOn,
               onChanged: (value) {
                 setState(() {
@@ -47,6 +51,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 });
               }
             )
+              ],
+            ),
+            
           ),
           ListTile(
             leading: Icon(Icons.delete_forever),

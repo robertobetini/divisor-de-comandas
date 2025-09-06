@@ -23,12 +23,14 @@ class _HomePageState extends State<HomePage> {
         () {
           var route = createOrderRoute(context);
           Navigator.of(context).push(route);
-        }),
+        }
+      ),
       HomePageButtonFactory.createWithoutText(context, Icons.group_outlined,
         () {
           var route = createPeopleRoute(context);
           Navigator.of(context).push(route);
-        }),
+        }
+      ),
       HomePageButtonFactory.createWithoutText(context, Icons.settings,
         () async {
           var route = createSettingsRoute(context);

@@ -54,7 +54,7 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
             },
             children: pages
           ),
-          PageIndicatorFactory.create(pages.length, _currentPage),
+          PageIndicatorFactory.create(pages.length, _currentPage)
         ],
       )
     );

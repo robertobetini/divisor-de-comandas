@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../constants.dart';
+import '../custom_widgets/constrained_text_field.dart';
 import '../models/people.dart';
 import '../repositories/people_repository.dart';
 
@@ -39,39 +41,28 @@ class _PeopleFormPageState extends State<PeopleFormPage> {
         children: [
           Padding(
             padding: EdgeInsets.all(15.0),
-            child: TextField(
-              controller: controller,
-              decoration: const InputDecoration(labelText: "Nome")
+            child: ConstrainedTextField(
+              controller,
+              "Nome",
+              64,
+              (value) => people?.name = value
             ),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Constants.soothingColor),
             onPressed: () async {
               if (people?.name == controller.text) {
                 Navigator.pop(context);
                 return;
               }
 
-              if (peopleRepository.findExactMatch(controller.text) != null) {
-                if (!context.mounted) {
-                  return;
-                }
+              if (controller.text.isEmpty) {
+                await showErrorDialog(context, Constants.peopleEmptyNameValidationError);
+                return;
+              }
 
-                await showDialog(
-                  context: context, 
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text("Erro"),
-                      content: const Text("Nome de pessoa já utilizado"),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(), 
-                          child: const Text("OK")
-                        )
-                      ],
-                    );
-                  }
-                );
-                
+              if (peopleRepository.findExactMatch(controller.text) != null) {
+                await showErrorDialog(context, Constants.peopleNameConflictValidationError);
                 return;
               }
 
@@ -86,4 +77,26 @@ class _PeopleFormPageState extends State<PeopleFormPage> {
       ),
     );
   }
+}
+
+Future showErrorDialog(BuildContext context, String content) async {
+  if (!context.mounted) {
+    return;
+  }
+
+  await showDialog(
+    context: context, 
+    builder: (context) {
+      return AlertDialog(
+        title: const Text("Erro"),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(), 
+            child: const Text("OK")
+          )
+        ],
+      );
+    }
+  );
 }

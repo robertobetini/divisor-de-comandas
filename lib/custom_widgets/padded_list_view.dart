@@ -10,7 +10,11 @@ class PaddedListTile extends ListTile implements PaddedTile {
     super.trailing,
     super.onTap,
     super.onLongPress,
+    super.contentPadding,
+    super.minLeadingWidth,
+    super.iconColor = const Color(0xEE594176),
     super.tileColor = const Color(0xBBCEC1DD),
+    super.textColor = const Color(0xFF3B2B4F),
     super.shape = const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12)))
   });
 }
@@ -22,6 +26,8 @@ class PaddedExpansionTile extends ExpansionTile implements PaddedTile {
     super.subtitle,
     super.trailing,
     super.children,
+    super.iconColor = const Color(0xEE594176),
+    super.collapsedIconColor = const Color(0xEE594176),
     super.shape = const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
     super.collapsedShape = const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12)))
   });

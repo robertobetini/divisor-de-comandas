@@ -1,7 +1,9 @@
 import 'package:decimal/decimal.dart';
+import 'package:divisao_contas/factories/validation_text_factory.dart';
 import 'package:divisao_contas/models/people.dart';
 import 'package:divisao_contas/repositories/order_repository.dart';
 import 'package:flutter/material.dart';
+import '../../constants.dart';
 import '../../factories/page_indicator_factory.dart';
 import '../../models/order.dart';
 import '../../repositories/people_repository.dart';
@@ -126,8 +128,8 @@ class _OrderFormPageState extends State<OrderFormPage> {
               return;
           }
         },
-        child: const Icon(Icons.add)
-      ),
+        child: _currentPage == 0 ? const Icon(Icons.add) : const Icon(Icons.person_add_alt_1)
+      )
     );
   }
 }
@@ -138,6 +140,9 @@ Widget addItemDialogBuilder(BuildContext context) {
   var productNameController = TextEditingController(text: selectedItem?.product.name);
   var productPriceController = TextEditingController(text: selectedItem?.product.price.toStringAsFixed(2));
 
+  var productNameHelperText = "";
+  var productPriceHelperText = "";
+
   return StatefulBuilder(
     builder: (context, setState) {
       return AlertDialog(
@@ -147,41 +152,19 @@ Widget addItemDialogBuilder(BuildContext context) {
           children: [
             TextField(
               controller: productNameController,
-              decoration: const InputDecoration(labelText: "Nome")
+              decoration: InputDecoration(
+                labelText: "Nome", 
+                helper: ValidationTextFactory.create(productNameHelperText),
+              )
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: productPriceController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: "Preço")
-                  )
-                ), 
-                SizedBox(width: 10),
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.remove),
-                          onPressed: () => setState(() {
-                            if (quantity > 0) {
-                              quantity--;
-                            }
-                          }),
-                        ),
-                        Text("$quantity"),
-                        IconButton(
-                          icon: Icon(Icons.add),
-                          onPressed: () => setState(() => quantity++),
-                        ),
-                      ],
-                    )
-                  ],
-                )
-              ],
+            TextField(
+              controller: productPriceController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: "Preço", 
+                helper: ValidationTextFactory.create(productPriceHelperText),
+                helperMaxLines: 2
+              )
             )
           ],
         ),
@@ -193,7 +176,17 @@ Widget addItemDialogBuilder(BuildContext context) {
           TextButton(
             onPressed: () {
               var newName = productNameController.text;
-              var newPrice = Decimal.parse(productPriceController.text);
+              var newPrice = Decimal.tryParse(productPriceController.text);
+              newPrice ??= Decimal.zero;
+
+              if (newName.isEmpty) {
+                setState(() => productNameHelperText = Constants.productNameValidationError);
+                return;
+              }
+              if (newPrice <= Decimal.zero) {
+                setState(() => productPriceHelperText = Constants.productPriceValidationError);
+                return;
+              }
 
               if (selectedItem == null) {
                 var product = Product(name: newName, price: newPrice);

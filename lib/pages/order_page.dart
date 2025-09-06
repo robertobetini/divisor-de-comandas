@@ -6,7 +6,7 @@ import 'order_summary_page/order_summary_page.dart';
 import '../repositories/order_repository.dart';
 import '../models/order.dart';
 
-var dateFormatter = DateFormat("dd/MM/yyyy - HH:mm");
+var dateFormatter = DateFormat("dd/MM/yyyy — HH:mm");
 var orderRepository = OrderRepository();
 
 MaterialPageRoute createOrderRoute(BuildContext context) {
@@ -29,11 +29,11 @@ class OrderPage extends StatefulWidget {
 class _OrderPageState extends State<OrderPage> {
   @override
   Widget build(BuildContext context) {
-    var orders = orderRepository.getAll();
+    var orders = orderRepository.getAll(deepSearch: true);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title)
       ),
       body: Column(
         children: [
@@ -44,10 +44,28 @@ class _OrderPageState extends State<OrderPage> {
                 var order = orders[index];
 
                 return PaddedListTile(
-                  leading: order.isClosed ? Icon(Icons.check_circle_outline) : const Text(""),
-                  title: Text(dateFormatter.format(order.createdAt)),
-                  subtitle: Text(order.description ?? ""),
-                  trailing: Text("\$${order.total().toStringAsFixed(2)}", textAlign: TextAlign.end, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                  leading: resolveStatusIcon(order),
+                  title: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(dateFormatter.format(order.createdAt)),
+                      SizedBox(width: 4),
+                      Row(
+                        children: [
+                          order.hasServiceCharge ? Icon(Icons.percent, size: 18) : Text(""),
+                          SizedBox(width: 4),
+                          Icon(Icons.group, size: 18),
+                          SizedBox(width: 4),
+                          Text(order.getPayers().length.toString()),
+                        ],
+                      ),
+                      
+                    ],
+                  ),
+                  subtitle: Text(order.description ?? "", maxLines: 4, overflow: TextOverflow.ellipsis,),
+                  trailing: Text("\$${order.total().toStringAsFixed(2)}".padLeft(12)),
                   onTap: () async {
                     var route = createOrderSummaryRoute(context, order.id);
                     var result = await Navigator.of(context).push(route);
@@ -79,8 +97,15 @@ class _OrderPageState extends State<OrderPage> {
             setState(() => orderRepository.add(result as Order));
           }
         },
-        child: const Icon(Icons.add)
+        child: const Icon(Icons.format_list_bulleted_add)
       ),
     );
   }
+}
+
+
+Icon resolveStatusIcon(Order order) {
+  return order.isClosed 
+    ? const Icon(Icons.paid)
+    : const Icon(Icons.pending_actions);
 }

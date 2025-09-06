@@ -1,6 +1,11 @@
 import 'package:divisao_contas/custom_widgets/padded_list_view.dart';
+import 'package:divisao_contas/factories/validation_text_factory.dart';
 import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
+import '../../constants.dart';
+import '../../custom_widgets/constrained_text_field.dart';
+import '../../factories/counter_factory.dart';
+import '../../factories/edge_insets_factory.dart';
 import '../../models/order.dart';
 import '../utils.dart';
 
@@ -14,10 +19,11 @@ Widget createPage1(BuildContext context, Order order, Function setState, TextEdi
     children: [
       Padding(
         padding: EdgeInsets.all(15.0),
-        child: TextField(
-          controller: descriptionController,
-          decoration: const InputDecoration(labelText: "Descrição (opcional)"),
-          onChanged: (value) => order.description = value,
+        child: ConstrainedTextField(
+          descriptionController,
+          "Descrição (opcional)",
+          Constants.maxOrderDescriptionLength,
+          (value) => order.description = value
         )
       ),
       Row(
@@ -44,8 +50,34 @@ Widget createPage1(BuildContext context, Order order, Function setState, TextEdi
           itemBuilder: (context, index) {
             var item = orderItems[index];
             return PaddedListTile(
-              leading: Text("${item.quantity}x"),
-              title: Text(item.product.name),
+              contentPadding: EdgeInsets.zero,
+              leading: CounterFactory.create(
+                quantity: item.quantity,
+                padding: 2,
+                onRemove: () => setState(() {
+                  if (item.quantity > Constants.minOrderItemCount) {
+                    item.quantity--;
+
+                    for (var sharing in item.sharings) {
+                      if (sharing.quantity > item.quantity) {
+                        sharing.quantity = item.quantity;
+                      }
+                    }
+                  }
+                }),
+                onAdd: () => setState(() { 
+                  if (item.quantity < Constants.maxOrderItemCount) {
+                    item.quantity++;
+                  }
+                })
+              ),
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                    Text(item.product.name),
+                ],
+              ),
               subtitle: Text("\$${item.product.price.toStringAsFixed(2)} / un."),
               trailing: IconButton(
                 onPressed: () async { 
@@ -58,7 +90,7 @@ Widget createPage1(BuildContext context, Order order, Function setState, TextEdi
                     setState(() => order.removeItem(item.product.name));
                   }
                 },
-                icon: Icon(Icons.delete)
+                icon: Icon(Icons.delete, color: Constants.dangerColor)
               ),
               onLongPress: () async {
                 selectedItem = item;
@@ -77,6 +109,18 @@ Widget createPage1(BuildContext context, Order order, Function setState, TextEdi
             );
           }
         )
+      ),
+      Padding(
+        padding: EdgeInsetsFactory.create(ButtonType.bottomButtom),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: Constants.soothingColor),
+          onPressed: () {
+            order.description = descriptionController.text;
+            order.updateTotalPrice();
+            Navigator.pop(context, order);
+          },
+          child: const Text("Salvar")
+        )
       )
     ]
   );
@@ -88,6 +132,9 @@ Widget addItemDialogBuilder(BuildContext context) {
   var productNameController = TextEditingController(text: selectedItem?.product.name);
   var productPriceController = TextEditingController(text: selectedItem?.product.price.toStringAsFixed(2));
 
+  var productNameHelperText = "";
+  var productPriceHelperText = "";
+
   return StatefulBuilder(
     builder: (context, setState) {
       return AlertDialog(
@@ -97,41 +144,19 @@ Widget addItemDialogBuilder(BuildContext context) {
           children: [
             TextField(
               controller: productNameController,
-              decoration: const InputDecoration(labelText: "Nome")
+              decoration: InputDecoration(
+                labelText: "Nome",
+                helper: ValidationTextFactory.create(productNameHelperText)
+              )
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: productPriceController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: "Preço")
-                  )
-                ), 
-                SizedBox(width: 10),
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.remove),
-                          onPressed: () => setState(() {
-                            if (quantity > 0) {
-                              quantity--;
-                            }
-                          }),
-                        ),
-                        Text("$quantity"),
-                        IconButton(
-                          icon: Icon(Icons.add),
-                          onPressed: () => setState(() => quantity++),
-                        ),
-                      ],
-                    )
-                  ],
-                )
-              ],
+            TextField(
+              controller: productPriceController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: "Preço",
+                helper: ValidationTextFactory.create(productPriceHelperText),
+                helperMaxLines: 2
+              )
             )
           ],
         ),
@@ -143,7 +168,18 @@ Widget addItemDialogBuilder(BuildContext context) {
           TextButton(
             onPressed: () {
               var newName = productNameController.text;
-              var newPrice = Decimal.parse(productPriceController.text);
+              var newPrice = Decimal.tryParse(productPriceController.text);
+
+              newPrice ??= Decimal.zero;
+
+              if (newName.isEmpty) {
+                setState(() => productNameHelperText = Constants.productNameValidationError);
+                return;
+              }
+              if (newPrice <= Decimal.zero) {
+                setState(() => productPriceHelperText = Constants.productPriceValidationError);
+                return;
+              }
 
               if (selectedItem == null) {
                 var product = Product(name: newName, price: newPrice);

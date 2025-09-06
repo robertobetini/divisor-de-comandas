@@ -33,8 +33,8 @@ class OrderRepository {
         payer.id = db.lastInsertRowId;
         
         for (var sharing in payer.sharings) {
-          stmt = db.prepare("INSERT INTO OrderPayerSharings (quantity, orderItem_id, payer_id) VALUES (?, ?, ?)");
-          stmt.execute([sharing.quantity, sharing.orderItem.id, payer.id]);
+          stmt = db.prepare("INSERT INTO OrderPayerSharings (quantity, orderItem_id, payer_id, isIndividual) VALUES (?, ?, ?, ?)");
+          stmt.execute([sharing.quantity, sharing.orderItem.id, payer.id, sharing.isIndividual]);
           stmt.dispose();
           sharing.id = db.lastInsertRowId;
         }
@@ -76,8 +76,8 @@ class OrderRepository {
         payer.id = db.lastInsertRowId;
         
         for (var sharing in payer.sharings) {
-          stmt = db.prepare("INSERT INTO OrderPayerSharings (quantity, orderItem_id, payer_id) VALUES (?, ?, ?)");
-          stmt.execute([sharing.quantity, sharing.orderItem.id, payer.id]);
+          stmt = db.prepare("INSERT INTO OrderPayerSharings (quantity, orderItem_id, payer_id, isIndividual) VALUES (?, ?, ?, ?)");
+          stmt.execute([sharing.quantity, sharing.orderItem.id, payer.id, sharing.isIndividual]);
           stmt.dispose();
           sharing.id = db.lastInsertRowId;
         }
@@ -157,7 +157,8 @@ class OrderRepository {
           row["orderPayerSharings_rowid"], 
           payer, 
           orderItem,
-          row["orderPayerSharings_quantity"]
+          row["orderPayerSharings_quantity"],
+          row["isIndividual"] == 1
         );
 
         payer.sharings.add(orderPayerSharings);
@@ -169,7 +170,7 @@ class OrderRepository {
 
   List<Order> getAll({ bool deepSearch = false }) {
     final orders = db
-      .select("SELECT rowid, * FROM Orders")
+      .select("SELECT rowid, * FROM Orders ORDER BY createdAt DESC")
       .map<Order>((row) => Order.fromDb(
           row["rowid"],
           row["description"], 
@@ -240,7 +241,8 @@ class OrderRepository {
           row["orderPayerSharings_rowid"], 
           payer, 
           orderItem,
-          row["orderPayerSharings_quantity"]
+          row["orderPayerSharings_quantity"],
+          row["isIndividual"] == 1
         );
 
         payer.sharings.add(orderPayerSharings);

@@ -16,7 +16,11 @@ Widget createPage1(BuildContext context, Order order) {
         padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
         child: Text(dateFormatter.format(order.createdAt))
       ),
-      Text(order.description ?? ""),
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Text(order.description ?? "")
+      ),
+      Divider(),
       Expanded(
         child: ListView.builder(
           itemCount: summary.length,
@@ -60,21 +64,13 @@ List<Widget> buildSummary(BuildContext context, Order order) {
       );
     }
 
-    summary.add(
-      Divider(
-        thickness: 3, 
-        indent: 30, 
-        endIndent: 30, 
-        radius: BorderRadiusGeometry.all(Radius.circular(10)),
-        color: Theme.of(context).colorScheme.secondary
-      )
-    );
+    summary.add(Divider());
 
     summary.add(
       ListTile(
         leading: const Text(""),
         title: const Text("Total"),
-        trailing: Text("\$${order.total().toStringAsFixed(2)}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))
+        trailing: Text("\$${order.total().toStringAsFixed(2)}")
       )
     );
 

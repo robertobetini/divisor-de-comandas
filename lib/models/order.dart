@@ -60,21 +60,21 @@ class Order {
     }
   }
 
-  void removeSharing(int sharingId) {
+  void removeSharing(OrderPayerSharings sharing) {
     for (var payer in _payers) {
-      payer.sharings.removeWhere((s) => s.id == sharingId);
+      payer.sharings.remove(sharing);
     }
 
     for (var item in _items) {
-      item.sharings.removeWhere((s) => s.id == sharingId);
+      item.sharings.remove(sharing);
     }
   }
 
-  OrderPayerSharings linkPayerToItem(OrderItem item, Payer payer) {
+  OrderPayerSharings? linkPayerToItem(OrderItem item, Payer payer, bool isIndividual) {
     var payerFound = false;
 
     for (int i = 0; i < _payers.length; i++) {
-      var existingSharing = payer.sharings.where((sharing) => sharing.orderItem.product.name == item.product.name).firstOrNull;
+      var existingSharing = payer.sharings.where((sharing) => sharing.orderItem.product.name == item.product.name && sharing.isIndividual == isIndividual).firstOrNull;
       if (existingSharing != null) {
         return existingSharing;
       }
@@ -88,7 +88,16 @@ class Order {
       throw Exception("Pagador não encontrado na comanda!");
     }
 
-    var orderPayerSharings = OrderPayerSharings(payer, item);
+    var totalIndividualEntrieForThatItem = item.sharings
+      .where((s) => s.isIndividual)
+      .map((s) => s.quantity)
+      .reduce((current, acc) => current + acc);
+
+    if (totalIndividualEntrieForThatItem >= item.quantity) {
+      return null;
+    }
+
+    var orderPayerSharings = OrderPayerSharings(payer, item, isIndividual);
 
     item.sharings.add(orderPayerSharings);
     payer.sharings.add(orderPayerSharings);
@@ -175,14 +184,29 @@ class Payer {
 }
 
 class OrderPayerSharings {
-  OrderPayerSharings(this.payer, this.orderItem);
-  OrderPayerSharings.fromDb(this.id, this.payer, this.orderItem, this.quantity);
+  OrderPayerSharings(this.payer, this.orderItem, this.isIndividual);
+  OrderPayerSharings.fromDb(this.id, this.payer, this.orderItem, this.quantity, this.isIndividual);
 
   int id = 0;
   final Payer payer;
   final OrderItem orderItem;
   bool isIndividual = false;
   int quantity = 1;
+
+  int getAvailableQuantity() => orderItem.sharings
+      .where((s) => s.isIndividual == isIndividual)
+      .map((s) => s.quantity)
+      .reduce((current, acc) => current + acc);
+
+  int getIndividualQuantity() => orderItem.sharings
+      .where((s) => s.isIndividual)
+      .map((s) => s.quantity)
+      .reduce((current, acc) => current + acc);
+
+  int getSharedQuantity() => orderItem.sharings
+      .where((s) => !s.isIndividual)
+      .map((s) => s.quantity)
+      .reduce((current, acc) => current + acc);
 
   Decimal getSharingSubtotal() {
     Decimal total = Decimal.zero;

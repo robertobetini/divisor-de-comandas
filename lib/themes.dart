@@ -63,10 +63,15 @@ final ThemeData lightPurpleTheme = ThemeData(
     onPrimary: Color(0xFFF5F6FA),
     onSecondary: Color(0xFFF5F6FA),
     onSurface: Color(0xFF2C2C54),
-    onError: Color(0xFFF5F6FA),
-    background: const Color(0xFFE6E0EE),
+    onError: Color(0xFFF5F6FA)
   ),
-  dividerColor: const Color(0xFFD0D0E6),
+  dividerTheme: DividerThemeData(
+    color: const Color(0xAAB06FA7),
+    thickness: 2,
+    indent: 30,
+    endIndent: 30,
+    radius: BorderRadius.all(Radius.circular(12))
+  ),
   appBarTheme: const AppBarTheme(
     backgroundColor: Color(0xFF8C6FAF),
     titleTextStyle: TextStyle(fontSize: 18),
@@ -93,15 +98,18 @@ final ThemeData lightPurpleTheme = ThemeData(
     ),
   ),
   expansionTileTheme: ExpansionTileThemeData(
+    textColor: const Color(0xFF3B2B4F),
+    collapsedTextColor: const Color(0xFF3B2B4F),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.zero)),
     backgroundColor: const Color(0xCCB5A2CC),
     collapsedBackgroundColor: const Color(0xBBCEC1DD)
   ),
   listTileTheme: ListTileThemeData(
+    textColor: const Color(0xFF3B2B4F),
     selectedColor: Color(0xFF8C6FAF),
     selectedTileColor: Color(0xFF8C6FAF),
-    iconColor: const Color(0xFF281D35),
-    leadingAndTrailingTextStyle: TextStyle(fontSize: 14, color: Color(0xFF2C2C54)),
+    iconColor: const Color(0xFF45335C),
+    leadingAndTrailingTextStyle: TextStyle(fontSize: 16, color: Color(0xFF2C2C54), fontWeight: FontWeight.bold)
   ),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
     backgroundColor: const Color(0xFF8C6FAF),
@@ -111,5 +119,12 @@ final ThemeData lightPurpleTheme = ThemeData(
     backgroundColor: const Color(0xFFE6E0EE),
     shadowColor: const Color(0xFF1E1627),
     iconColor: const Color(0xFF1E1627)
-  )
+  ),
+  switchTheme: SwitchThemeData(
+    thumbColor: WidgetStateColor.resolveWith((states) => const Color(0xFF45335C)),
+    trackColor: WidgetStateColor.resolveWith((states) => const Color(0xAA8C6FAF)),
+    overlayColor: WidgetStateColor.resolveWith((states) => const Color(0xFF45335C)),
+    trackOutlineColor: WidgetStateColor.resolveWith((states) => const Color(0xFF45335C)),
+    trackOutlineWidth: WidgetStateProperty.resolveWith((states) => 2)
+  ),
 );
