@@ -20,8 +20,8 @@ class OrderRepository {
         stmt.dispose();
         orderItem.product.id = db.lastInsertRowId;
 
-        stmt = db.prepare("INSERT INTO OrderItems (quantity, product_id, order_id) VALUES (?, ?, ?)");
-        stmt.execute([orderItem.quantity, orderItem.product.id, order.id]);
+        stmt = db.prepare("INSERT INTO OrderItems (quantity, product_id, order_id, isIndividual) VALUES (?, ?, ?, ?)");
+        stmt.execute([orderItem.quantity, orderItem.product.id, order.id, orderItem.isIndividual]);
         stmt.dispose();
         orderItem.id = db.lastInsertRowId;
       }
@@ -33,8 +33,8 @@ class OrderRepository {
         payer.id = db.lastInsertRowId;
         
         for (var sharing in payer.sharings) {
-          stmt = db.prepare("INSERT INTO OrderPayerSharings (quantity, orderItem_id, payer_id, isIndividual) VALUES (?, ?, ?, ?)");
-          stmt.execute([sharing.quantity, sharing.orderItem.id, payer.id, sharing.isIndividual]);
+          stmt = db.prepare("INSERT INTO OrderPayerSharings (quantity, orderItem_id, payer_id) VALUES (?, ?, ?)");
+          stmt.execute([sharing.quantity, sharing.orderItem.id, payer.id]);
           stmt.dispose();
           sharing.id = db.lastInsertRowId;
         }
@@ -63,8 +63,8 @@ class OrderRepository {
         stmt.dispose();
         orderItem.product.id = db.lastInsertRowId;
 
-        stmt = db.prepare("INSERT INTO OrderItems (quantity, product_id, order_id) VALUES (?, ?, ?)");
-        stmt.execute([orderItem.quantity, orderItem.product.id, order.id]);
+        stmt = db.prepare("INSERT INTO OrderItems (quantity, product_id, order_id, isIndividual) VALUES (?, ?, ?, ?)");
+        stmt.execute([orderItem.quantity, orderItem.product.id, order.id, orderItem.isIndividual]);
         stmt.dispose();
         orderItem.id = db.lastInsertRowId;
       }
@@ -76,8 +76,8 @@ class OrderRepository {
         payer.id = db.lastInsertRowId;
         
         for (var sharing in payer.sharings) {
-          stmt = db.prepare("INSERT INTO OrderPayerSharings (quantity, orderItem_id, payer_id, isIndividual) VALUES (?, ?, ?, ?)");
-          stmt.execute([sharing.quantity, sharing.orderItem.id, payer.id, sharing.isIndividual]);
+          stmt = db.prepare("INSERT INTO OrderPayerSharings (quantity, orderItem_id, payer_id) VALUES (?, ?, ?)");
+          stmt.execute([sharing.quantity, sharing.orderItem.id, payer.id]);
           stmt.dispose();
           sharing.id = db.lastInsertRowId;
         }
@@ -118,7 +118,7 @@ class OrderRepository {
           Decimal.parse(row["price"])
         );
 
-        final orderItem = OrderItem.fromDb(row["orderItem_rowid"], product, row["quantity"]);
+        final orderItem = OrderItem.fromDb(row["orderItem_rowid"], product, row["quantity"], row["isIndividual"] == 1);
         order.addItem(orderItem);
       }
 
@@ -157,8 +157,7 @@ class OrderRepository {
           row["orderPayerSharings_rowid"], 
           payer, 
           orderItem,
-          row["orderPayerSharings_quantity"],
-          row["isIndividual"] == 1
+          row["orderPayerSharings_quantity"]
         );
 
         payer.sharings.add(orderPayerSharings);
@@ -202,7 +201,7 @@ class OrderRepository {
           Decimal.parse(row["price"])
         );
 
-        final orderItem = OrderItem.fromDb(row["orderItem_rowid"], product, row["quantity"]);
+        final orderItem = OrderItem.fromDb(row["orderItem_rowid"], product, row["quantity"], row["isIndividual"] == 1);
         order.addItem(orderItem);
       }
 
@@ -241,8 +240,7 @@ class OrderRepository {
           row["orderPayerSharings_rowid"], 
           payer, 
           orderItem,
-          row["orderPayerSharings_quantity"],
-          row["isIndividual"] == 1
+          row["orderPayerSharings_quantity"]
         );
 
         payer.sharings.add(orderPayerSharings);

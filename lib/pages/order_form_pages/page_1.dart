@@ -1,7 +1,5 @@
-import 'package:divisao_contas/custom_widgets/padded_list_view.dart';
-import 'package:divisao_contas/factories/validation_text_factory.dart';
 import 'package:flutter/material.dart';
-import 'package:decimal/decimal.dart';
+import '../../custom_widgets/padded_list_view.dart';
 import '../../constants.dart';
 import '../../custom_widgets/constrained_text_field.dart';
 import '../../factories/counter_factory.dart';
@@ -58,6 +56,12 @@ Widget createPage1(BuildContext context, Order order, Function setState, TextEdi
                   if (item.quantity > Constants.minOrderItemCount) {
                     item.quantity--;
 
+                    if (item.isIndividual) {
+                      if (item.getAvailableQuantity() < 0) {
+                        item.clearSharings();
+                      }
+                    }
+
                     for (var sharing in item.sharings) {
                       if (sharing.quantity > item.quantity) {
                         sharing.quantity = item.quantity;
@@ -71,13 +75,7 @@ Widget createPage1(BuildContext context, Order order, Function setState, TextEdi
                   }
                 })
               ),
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                    Text(item.product.name),
-                ],
-              ),
+              title: createItemTitle(item, showConciliationStatus: true),
               subtitle: Text("\$${item.product.price.toStringAsFixed(2)} / un."),
               trailing: IconButton(
                 onPressed: () async { 
@@ -97,7 +95,7 @@ Widget createPage1(BuildContext context, Order order, Function setState, TextEdi
 
                 var _ = await showDialog(
                   context: context, 
-                  builder: addItemDialogBuilder
+                  builder: _addItemDialogBuilder
                 );
 
                 selectedItem = null;
@@ -126,79 +124,5 @@ Widget createPage1(BuildContext context, Order order, Function setState, TextEdi
   );
 }
 
-Widget addItemDialogBuilder(BuildContext context) {
-  var quantity = selectedItem?.quantity ?? 1;
 
-  var productNameController = TextEditingController(text: selectedItem?.product.name);
-  var productPriceController = TextEditingController(text: selectedItem?.product.price.toStringAsFixed(2));
-
-  var productNameHelperText = "";
-  var productPriceHelperText = "";
-
-  return StatefulBuilder(
-    builder: (context, setState) {
-      return AlertDialog(
-        title: Text(selectedItem == null ? "Adicionar item" : "Editar item"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: productNameController,
-              decoration: InputDecoration(
-                labelText: "Nome",
-                helper: ValidationTextFactory.create(productNameHelperText)
-              )
-            ),
-            TextField(
-              controller: productPriceController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: "Preço",
-                helper: ValidationTextFactory.create(productPriceHelperText),
-                helperMaxLines: 2
-              )
-            )
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context), 
-            child: const Text("Cancelar")
-          ),
-          TextButton(
-            onPressed: () {
-              var newName = productNameController.text;
-              var newPrice = Decimal.tryParse(productPriceController.text);
-
-              newPrice ??= Decimal.zero;
-
-              if (newName.isEmpty) {
-                setState(() => productNameHelperText = Constants.productNameValidationError);
-                return;
-              }
-              if (newPrice <= Decimal.zero) {
-                setState(() => productPriceHelperText = Constants.productPriceValidationError);
-                return;
-              }
-
-              if (selectedItem == null) {
-                var product = Product(name: newName, price: newPrice);
-                var orderItem = OrderItem(product, quantity: quantity);
-
-                Navigator.pop(context, orderItem);
-                return;
-              }
-              
-              selectedItem?.product.name = productNameController.text;
-              selectedItem?.product.price = newPrice;
-              selectedItem?.quantity = quantity;
-
-              Navigator.pop(context);
-            } , 
-            child: const Text("Salvar")
-          )
-        ],
-      );
-    }
-  );
-}
+Widget _addItemDialogBuilder(BuildContext context) => addItemDialogBuilder(context, selectedItem);

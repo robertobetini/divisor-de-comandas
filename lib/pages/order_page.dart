@@ -5,6 +5,7 @@ import 'order_form_pages/order_form_page.dart';
 import 'order_summary_page/order_summary_page.dart';
 import '../repositories/order_repository.dart';
 import '../models/order.dart';
+import 'utils.dart';
 
 var dateFormatter = DateFormat("dd/MM/yyyy — HH:mm");
 var orderRepository = OrderRepository();
@@ -51,13 +52,13 @@ class _OrderPageState extends State<OrderPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(dateFormatter.format(order.createdAt)),
-                      SizedBox(width: 4),
+                      spaceBetweenTextAndIcon,
                       Row(
                         children: [
                           order.hasServiceCharge ? Icon(Icons.percent, size: 18) : Text(""),
-                          SizedBox(width: 4),
+                          order.isConciliated() ? Icon(Icons.price_check, size: 18) : Text(""),
                           Icon(Icons.group, size: 18),
-                          SizedBox(width: 4),
+                          spaceBetweenTextAndIcon,
                           Text(order.getPayers().length.toString()),
                         ],
                       ),
@@ -101,11 +102,4 @@ class _OrderPageState extends State<OrderPage> {
       ),
     );
   }
-}
-
-
-Icon resolveStatusIcon(Order order) {
-  return order.isClosed 
-    ? const Icon(Icons.paid)
-    : const Icon(Icons.pending_actions);
 }

@@ -14,4 +14,5 @@ class Constants {
 
   static const Color dangerColor = Color(0xFFEF5350);
   static const Color soothingColor = Color(0xFF4CAF50);
+  static const Color warningColor = Color(0xFFE69500);
 }

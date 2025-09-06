@@ -1,6 +1,7 @@
 import 'package:divisao_contas/custom_widgets/padded_list_view.dart';
 import 'package:flutter/material.dart';
 import '../../models/order.dart';
+import '../utils.dart';
 
 Widget createPage2(BuildContext context, Order order) {
   var payers = order
@@ -12,7 +13,7 @@ Widget createPage2(BuildContext context, Order order) {
 
           return ListTile(
             leading: Text("${sharing.quantity}x"),
-            title: Text(sharing.orderItem.product.name),
+            title: createItemTitle(sharing.orderItem),
             subtitle: Text("\$${sharing.orderItem.product.price.toStringAsFixed(2)} / un"),
             trailing: Text("\$${sharingTotal.toStringAsFixed(2)}")
           );

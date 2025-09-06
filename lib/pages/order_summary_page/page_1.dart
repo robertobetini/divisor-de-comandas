@@ -3,12 +3,13 @@ import 'package:intl/intl.dart';
 import 'package:decimal/decimal.dart';
 import '../../factories/edge_insets_factory.dart';
 import '../../models/order.dart';
+import '../utils.dart';
 
 var dateFormatter = DateFormat("dd/MM/yyyy  —  HH:mm");
 
 Widget createPage1(BuildContext context, Order order) {
   var summary = buildSummary(context, order);
-
+  
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
@@ -20,6 +21,7 @@ Widget createPage1(BuildContext context, Order order) {
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Text(order.description ?? "")
       ),
+      getConciliationWarning(order) ?? Text(""),
       Divider(),
       Expanded(
         child: ListView.builder(
@@ -47,7 +49,7 @@ List<Widget> buildSummary(BuildContext context, Order order) {
 
         return ListTile(
           leading: Text("${item.quantity}x"),
-          title: Text(item.product.name),
+          title: createItemTitle(item),
           subtitle: Text("\$${item.product.price.toStringAsFixed(2)} / un."),
           trailing: Text("\$${totalItemPrice.toStringAsFixed(2)}")
         );
@@ -65,7 +67,6 @@ List<Widget> buildSummary(BuildContext context, Order order) {
     }
 
     summary.add(Divider());
-
     summary.add(
       ListTile(
         leading: const Text(""),
@@ -82,13 +83,22 @@ VoidCallback? resolveCloseOrderButtonHandler(BuildContext context, Order order) 
     return null;
   }
 
+  var conciliationWarning = getConciliationWarning(order);
+
   return () async {
     var result = await showDialog(
       context: context, 
       builder: (context) {
         return AlertDialog(
           title: const Text("Deseja fechar a comanda?"),
-          content: const Text("Após fechada, a comanda não poderá ser mais alterada"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              conciliationWarning ?? Text(""),
+              const Text("Após fechada, a comanda não poderá ser mais alterada"),
+            ],
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false), 
@@ -112,3 +122,15 @@ VoidCallback? resolveCloseOrderButtonHandler(BuildContext context, Order order) 
     }
   };
 }
+
+Widget? getConciliationWarning(Order order) => order.isConciliated() 
+  ? null 
+  : Row(
+      spacing: 0,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        warningIcon,
+        spaceBetweenTextAndIcon,
+        Text("Existem itens não atribuídos na comanda", style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),)
+      ],
+    );

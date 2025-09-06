@@ -1,6 +1,13 @@
 import 'package:decimal/decimal.dart';
 import 'people.dart';
 
+enum OrderStatus {
+  pendingConciliation,
+  conciliated,
+  closedWithInconsistence,
+  closed,
+}
+
 class Order {
   Order();
   Order.fromDb(this.id, this.description, this.hasServiceCharge, this.isClosed, this.subtotal, int timestamp) {
@@ -12,6 +19,20 @@ class Order {
   String? description;
   bool hasServiceCharge = false;
   bool isClosed = false;
+  OrderStatus get status {
+    var orderIsFullyConciliated = isConciliated();
+    if (isClosed && orderIsFullyConciliated) {
+      return OrderStatus.closed;
+    }
+    if (isClosed && !orderIsFullyConciliated) {
+      return OrderStatus.closedWithInconsistence;
+    }
+    if (!isClosed && orderIsFullyConciliated) {
+      return OrderStatus.conciliated;
+    }
+
+    return OrderStatus.pendingConciliation;
+  }
 
   Decimal subtotal = Decimal.zero;
 
@@ -21,6 +42,8 @@ class Order {
 
   List<OrderItem> getItems() => _items.toList();
   List<Payer> getPayers() => _payers.toList();
+
+  Decimal total() => subtotal + getServiceCharge();
 
   void addItem(OrderItem item) {
     _items.add(item);
@@ -70,11 +93,11 @@ class Order {
     }
   }
 
-  OrderPayerSharings? linkPayerToItem(OrderItem item, Payer payer, bool isIndividual) {
+  OrderPayerSharings? linkPayerToItem(OrderItem item, Payer payer) {
     var payerFound = false;
 
     for (int i = 0; i < _payers.length; i++) {
-      var existingSharing = payer.sharings.where((sharing) => sharing.orderItem.product.name == item.product.name && sharing.isIndividual == isIndividual).firstOrNull;
+      var existingSharing = payer.sharings.where((sharing) => sharing.orderItem.product.name == item.product.name).firstOrNull;
       if (existingSharing != null) {
         return existingSharing;
       }
@@ -88,16 +111,7 @@ class Order {
       throw Exception("Pagador não encontrado na comanda!");
     }
 
-    var totalIndividualEntrieForThatItem = item.sharings
-      .where((s) => s.isIndividual)
-      .map((s) => s.quantity)
-      .reduce((current, acc) => current + acc);
-
-    if (totalIndividualEntrieForThatItem >= item.quantity) {
-      return null;
-    }
-
-    var orderPayerSharings = OrderPayerSharings(payer, item, isIndividual);
+    var orderPayerSharings = OrderPayerSharings(payer, item);
 
     item.sharings.add(orderPayerSharings);
     payer.sharings.add(orderPayerSharings);
@@ -124,14 +138,22 @@ class Order {
       : Decimal.zero;
   }
 
-  Decimal total() => subtotal + getServiceCharge();
-
   void updateTotalPrice() {
     subtotal = Decimal.zero;
 
     for (var item in _items) {
       subtotal += item.product.price * Decimal.fromInt(item.quantity);
     }
+  }
+
+  bool isConciliated() {
+    for (var item in _items) {
+      if (!item.isConciliated()) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
 
@@ -145,13 +167,59 @@ class Product {
 }
 
 class OrderItem {
-  OrderItem(this.product, { this.quantity = 1 });
-  OrderItem.fromDb(this.id, this.product, this.quantity);
+  OrderItem(this.product, { this.quantity = 1, this.isIndividual = false });
+  OrderItem.fromDb(this.id, this.product, this.quantity, this.isIndividual);
 
   int id = 0;
   final Product product;
   List<OrderPayerSharings> sharings = [];
   int quantity = 1;
+  bool isIndividual;
+
+  int getAvailableQuantity() {
+    if (!isIndividual) {
+      return quantity;
+    }
+
+    var linkedItemsCount = 0;
+    if (sharings.isNotEmpty) {
+      linkedItemsCount = sharings
+        .map((s) => s.quantity)
+        .reduce((current, acc) => current + acc);
+    }
+
+    return quantity - linkedItemsCount;
+  }
+
+  void clearSharings() {
+    for (var sharing in sharings) {
+      sharing.payer.sharings.removeWhere((s) => s.orderItem.id == id);
+    }
+
+    sharings.clear();
+  }
+
+  bool isConciliated() {
+    var conciliatedQuantity = 0;
+
+    if (isIndividual) {
+      if (sharings.isNotEmpty) {
+        conciliatedQuantity = sharings
+          .map((s) => s.quantity)
+          .reduce((current, acc) => current + acc);
+      }
+
+      return quantity == conciliatedQuantity;
+    }
+
+    if (sharings.isNotEmpty) {
+      conciliatedQuantity = sharings
+          .map((s) => s.quantity)
+          .reduce((current, acc) => current > acc ? current : acc);
+    }
+
+    return quantity == conciliatedQuantity;
+  }
 }
 
 class Payer {
@@ -184,32 +252,20 @@ class Payer {
 }
 
 class OrderPayerSharings {
-  OrderPayerSharings(this.payer, this.orderItem, this.isIndividual);
-  OrderPayerSharings.fromDb(this.id, this.payer, this.orderItem, this.quantity, this.isIndividual);
+  OrderPayerSharings(this.payer, this.orderItem);
+  OrderPayerSharings.fromDb(this.id, this.payer, this.orderItem, this.quantity);
 
   int id = 0;
   final Payer payer;
   final OrderItem orderItem;
-  bool isIndividual = false;
   int quantity = 1;
-
-  int getAvailableQuantity() => orderItem.sharings
-      .where((s) => s.isIndividual == isIndividual)
-      .map((s) => s.quantity)
-      .reduce((current, acc) => current + acc);
-
-  int getIndividualQuantity() => orderItem.sharings
-      .where((s) => s.isIndividual)
-      .map((s) => s.quantity)
-      .reduce((current, acc) => current + acc);
-
-  int getSharedQuantity() => orderItem.sharings
-      .where((s) => !s.isIndividual)
-      .map((s) => s.quantity)
-      .reduce((current, acc) => current + acc);
 
   Decimal getSharingSubtotal() {
     Decimal total = Decimal.zero;
+
+    if (orderItem.isIndividual) {
+      return orderItem.product.price * Decimal.fromInt(quantity);
+    }
 
     for (int i = 1; i <= quantity; i++) {
       var sharerCount = orderItem.sharings
@@ -221,5 +277,17 @@ class OrderPayerSharings {
     }
 
     return total; 
+  }
+
+  int getAvailableQuantity() {
+    if (!orderItem.isIndividual) {
+      return orderItem.quantity - quantity;
+    }
+
+    var linkedItemsCount = orderItem.sharings
+      .map((s) => s.quantity)
+      .reduce((current, acc) => current + acc);
+
+    return orderItem.quantity - linkedItemsCount;
   }
 }

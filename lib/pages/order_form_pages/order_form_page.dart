@@ -1,12 +1,10 @@
-import 'package:decimal/decimal.dart';
-import 'package:divisao_contas/factories/validation_text_factory.dart';
 import 'package:divisao_contas/models/people.dart';
 import 'package:divisao_contas/repositories/order_repository.dart';
 import 'package:flutter/material.dart';
-import '../../constants.dart';
 import '../../factories/page_indicator_factory.dart';
 import '../../models/order.dart';
 import '../../repositories/people_repository.dart';
+import '../utils.dart';
 import 'page_1.dart';
 import 'page_2.dart';
 
@@ -101,7 +99,7 @@ class _OrderFormPageState extends State<OrderFormPage> {
             case 0:
               var result = await showDialog(
                 context: context, 
-                builder: addItemDialogBuilder
+                builder: _addItemDialogBuilder
               );
               
               if (result != null) {
@@ -134,80 +132,4 @@ class _OrderFormPageState extends State<OrderFormPage> {
   }
 }
 
-Widget addItemDialogBuilder(BuildContext context) {
-  var quantity = selectedItem?.quantity ?? 1;
-
-  var productNameController = TextEditingController(text: selectedItem?.product.name);
-  var productPriceController = TextEditingController(text: selectedItem?.product.price.toStringAsFixed(2));
-
-  var productNameHelperText = "";
-  var productPriceHelperText = "";
-
-  return StatefulBuilder(
-    builder: (context, setState) {
-      return AlertDialog(
-        title: const Text("Adicionar item"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: productNameController,
-              decoration: InputDecoration(
-                labelText: "Nome", 
-                helper: ValidationTextFactory.create(productNameHelperText),
-              )
-            ),
-            TextField(
-              controller: productPriceController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: "Preço", 
-                helper: ValidationTextFactory.create(productPriceHelperText),
-                helperMaxLines: 2
-              )
-            )
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context), 
-            child: const Text("Cancelar")
-          ),
-          TextButton(
-            onPressed: () {
-              var newName = productNameController.text;
-              var newPrice = Decimal.tryParse(productPriceController.text);
-              newPrice ??= Decimal.zero;
-
-              if (newName.isEmpty) {
-                setState(() => productNameHelperText = Constants.productNameValidationError);
-                return;
-              }
-              if (newPrice <= Decimal.zero) {
-                setState(() => productPriceHelperText = Constants.productPriceValidationError);
-                return;
-              }
-
-              if (selectedItem == null) {
-                var product = Product(name: newName, price: newPrice);
-                var orderItem = OrderItem(product, quantity: quantity);
-
-                Navigator.pop(context, orderItem);
-                return;
-              }
-              
-              selectedItem?.product.name = productNameController.text;
-              selectedItem?.product.price = newPrice;
-              selectedItem?.quantity = quantity;
-
-              Navigator.pop(context);
-            } , 
-            child: const Text("Salvar")
-          )
-        ],
-      );
-    }
-  );
-}
-
-
+Widget _addItemDialogBuilder(BuildContext context) => addItemDialogBuilder(context, selectedItem);

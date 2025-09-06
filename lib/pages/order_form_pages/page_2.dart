@@ -5,40 +5,16 @@ import '../../constants.dart';
 import '../../models/order.dart';
 import '../utils.dart';
 
-var isIndividual = false;
-
 Widget createPage2(BuildContext context, Order order, Function setState, TextEditingController descriptionController) {
   StatefulBuilder linkDialogBuilder(BuildContext context) {
     return StatefulBuilder(
       builder: (context, dialogSetState) {
         return AlertDialog(
           title: const Text("Relacionar item"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  isIndividual ? const Text("Individual") : const Text("Compartilhado"),
-                  Switch(
-                    thumbIcon: WidgetStateProperty.resolveWith((states) => 
-                      states.contains(WidgetState.selected) 
-                        ? Icon(Icons.person)
-                        : Icon(Icons.group)
-                    ),
-                    value: isIndividual,
-                    onChanged: (value) {
-                      dialogSetState(() => isIndividual = value);
-                    },
-                  ),
-                ],
-              ),
-              Autocomplete<OrderItem>(
-                displayStringForOption: (item) => item.product.name,
-                optionsBuilder: (textEditingValue) => order.findItem(textEditingValue.text),
-                onSelected: (item) => Navigator.pop(context, (item, isIndividual)),
-              ),
-            ],
+          content: Autocomplete<OrderItem>(
+            displayStringForOption: (item) => item.product.name,
+            optionsBuilder: (textEditingValue) => order.findItem(textEditingValue.text),
+            onSelected: (item) => Navigator.pop(context, (item)),
           ),
           actions: [
             TextButton(
@@ -84,15 +60,12 @@ Widget createPage2(BuildContext context, Order order, Function setState, TextEdi
                         }
                       }),
                       onAdd: () => setState(() { 
-                        // TODO mover essa lógica do isIndividual para o OrderItem em ver do Sharing
-                        if (sharing.quantity < sharing.getAvailableQuantity()) {
+                        if (sharing.getAvailableQuantity() > 0) {
                           sharing.quantity++;
                         }
                       })
                     ),
-                    Text(sharing.orderItem.product.name),
-                    SizedBox(width: 4),
-                    resolveSharingTypeButton(sharing.isIndividual)
+                    createItemTitle(sharing.orderItem)
                   ],
                 ),
                 trailing: IconButton(
@@ -135,8 +108,35 @@ Widget createPage2(BuildContext context, Order order, Function setState, TextEdi
                       );
 
                       if (result != null) {
-                        var (orderItem, isIndividual) = result as (OrderItem, bool);
-                        setState(() => order.linkPayerToItem(orderItem, payer, isIndividual));
+                        var orderItem = result as OrderItem;
+                        if (orderItem.getAvailableQuantity() > 0) {
+                          setState(() => order.linkPayerToItem(orderItem, payer));
+                          return;
+                        }
+
+                        if (!context.mounted) {
+                          return;
+                        }
+
+                        await showDialog(
+                          context: context, 
+                          builder: (context) => AlertDialog(
+                            title: const Text("Erro"),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text("Todas as unidades já foram distribuídas para"),
+                                createItemTitle(orderItem)
+                              ],
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context), 
+                                child: const Text("OK")
+                              )
+                            ],
+                          )
+                        );
                       }
                     }, 
                     child: const Icon(Icons.library_add, size: 20)
@@ -156,5 +156,3 @@ Widget createPage2(BuildContext context, Order order, Function setState, TextEdi
     ],
   );
 }
-
-Icon resolveSharingTypeButton(bool isIndividual) => isIndividual ? const Icon(Icons.person) : const Icon(Icons.group);
