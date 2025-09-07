@@ -26,7 +26,7 @@ class DbContext {
 
     db.execute('''
       CREATE TABLE IF NOT EXISTS Peoples (
-        name VARCHAR(64) COLLATE NOCASE,
+        name VARCHAR(64),
         isDeleted INTEGER,
         createdAt TIMESTAMP
       );
@@ -34,7 +34,7 @@ class DbContext {
 
     db.execute('''
       CREATE TABLE IF NOT EXISTS Products (
-        name VARCHAR(32) COLLATE NOCASE,
+        name VARCHAR(32),
         price TEXT
       );
     ''');

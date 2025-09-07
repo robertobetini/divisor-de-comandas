@@ -15,5 +15,6 @@ class Constants {
   static const Color dangerColor = Color(0xFFEF5350);
   static const Color soothingColor = Color(0xFF4CAF50);
   static const Color warningColor = Color(0xFFE69500);
-  static const Color containerdefaultColor = const Color(0xBBE6E0EE);
+  static const Color containerdefaultColor = Color(0xBBE6E0EE);
+  static const Color textHintColor = Color(0x66000000);
 }

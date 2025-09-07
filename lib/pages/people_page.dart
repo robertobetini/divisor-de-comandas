@@ -1,6 +1,7 @@
 import 'package:divisao_contas/custom_widgets/padded_list_view.dart';
 import 'package:flutter/material.dart';
 import '../constants.dart';
+import '../factories/header_filters_factory.dart';
 import '../repositories/people_repository.dart';
 import 'people_form_page.dart';
 import '../models/people.dart';
@@ -26,11 +27,12 @@ class PeoplePage extends StatefulWidget {
 }
 
 class _PeoplePageState extends State<PeoplePage> {
+  var isOrderByAsc = true;
   var nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    var peoples = peopleRepository.getAll(name: nameController.text);
+    var peoples = peopleRepository.getAll(name: nameController.text, isOrderByAsc: isOrderByAsc);
 
     return Scaffold(
       appBar: AppBar(
@@ -38,32 +40,13 @@ class _PeoplePageState extends State<PeoplePage> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
-            child: Container(
-              color: Constants.containerdefaultColor,
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                        icon: Icon(Icons.search)
-                      ),
-                      onChanged: (value) => setState(() {}),
-                    )
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      setState(() => nameController.clear());
-                    }, 
-                    icon: Icon(Icons.clear_all)
-                  ),
-                ],
-              )
-            )
+          HeaderFiltersFactory.create(
+            context: context,
+            setState: setState,
+            textController: nameController,
+            hintText: "Nome",
+            onSortChanged: () => isOrderByAsc = !isOrderByAsc,
+            currentSortValue: isOrderByAsc
           ),
           Expanded(
             child: PaddedListView(

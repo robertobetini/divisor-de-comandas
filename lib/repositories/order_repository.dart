@@ -167,7 +167,7 @@ class OrderRepository {
       return order;
   }
 
-  List<Order> getAll({ bool deepSearch = false, String? description, DateTime? startDate, DateTime? endDate }) {
+  List<Order> getAll({ bool deepSearch = false, String? description, DateTime? startDate, DateTime? endDate, bool isOrderByAsc = false }) {
     var query = "SELECT rowid, * FROM Orders ";
     List<(String queryString, Object queryParam)> whereClauses = [];
 
@@ -188,7 +188,11 @@ class OrderRepository {
       query += "WHERE ${whereClauses.map((clause) => clause.$1).join('AND')}";
     }
 
-    query += "ORDER BY createdAt DESC ";
+    if (isOrderByAsc) {
+      query += "ORDER BY createdAt ASC";
+    } else {
+      query += "ORDER BY createdAt DESC";
+    }
     
     final orders = db
       .select(query, whereClauses.map((clause) => clause.$2).toList())

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../constants.dart';
 import '../custom_widgets/padded_list_view.dart';
+import '../factories/header_filters_factory.dart';
 import 'order_form_pages/order_form_page.dart';
 import 'order_summary_page/order_summary_page.dart';
 import '../repositories/order_repository.dart';
@@ -29,6 +30,7 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
+  var isOrderByAsc = false;
   DateTimeRange? orderDateTimeRange;
 
   var descriptionController = TextEditingController();
@@ -39,7 +41,8 @@ class _OrderPageState extends State<OrderPage> {
       deepSearch: true, 
       description: descriptionController.text,
       startDate: orderDateTimeRange?.start,
-      endDate: orderDateTimeRange?.end
+      endDate: orderDateTimeRange?.end,
+      isOrderByAsc: isOrderByAsc,
     );
 
     return Scaffold(
@@ -48,56 +51,31 @@ class _OrderPageState extends State<OrderPage> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
-            child: Container(
-              color: Constants.containerdefaultColor,
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: descriptionController,
-                      decoration: const InputDecoration(
-                        icon: Icon(Icons.search)
-                      ),
-                      onChanged: (value) => setState(() {}),
-                    )
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        descriptionController.clear();
-                        orderDateTimeRange = null;
-                      });
-                    }, 
-                    icon: Icon(Icons.clear_all)
-                  ),
-                  IconButton(
-                    onPressed: () async {
-                      var dateTimeRange = await showDateRangePicker(
-                        context: context, 
-                        firstDate: DateTime(2000), 
-                        lastDate: DateTime.now()
-                      );
+          HeaderFiltersFactory.create(
+            context: context,
+            setState: setState,
+            textController: descriptionController,
+            hintText: "Descrição",
+            onCleared: () => orderDateTimeRange = null,
+            onDateChanged: () async {
+              var dateTimeRange = await showDateRangePicker(
+                context: context, 
+                firstDate: DateTime(2000), 
+                lastDate: DateTime.now()
+              );
 
-                      if (dateTimeRange == null) {
-                        return;
-                      }
+              if (dateTimeRange == null) {
+                return;
+              }
 
-                      setState(() => orderDateTimeRange = DateTimeRange(
-                        start: dateTimeRange.start, 
-                        end: DateTime(dateTimeRange.end.year, dateTimeRange.end.month, dateTimeRange.end.day + 1))
-                      );
-                    }, 
-                    icon: Icon(Icons.date_range)
-                  )
-                ],
-              )
-            )
+              setState(() => orderDateTimeRange = DateTimeRange(
+                start: dateTimeRange.start, 
+                end: DateTime(dateTimeRange.end.year, dateTimeRange.end.month, dateTimeRange.end.day + 1))
+              );
+            },
+            onSortChanged: () => isOrderByAsc = !isOrderByAsc,
+            currentSortValue: isOrderByAsc
           ),
-          
           Expanded(
             child: PaddedListView(
               itemCount: orders.length,

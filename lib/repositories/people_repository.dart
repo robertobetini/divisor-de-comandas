@@ -27,16 +27,22 @@ class PeopleRepository {
       .firstOrNull;
   }
 
-  List<People> getAll({ String? name }) {
+  List<People> getAll({ String? name, bool isOrderByAsc = true }) {
     var query = "SELECT rowid, * FROM Peoples WHERE isDeleted = 0 ";
     var queryParams = [];
 
     if (name != null) {
-      query += "AND name LIKE ? ";
-      queryParams.add("%$name%");
+      query += "AND LOWER(name) LIKE ? ";
+      queryParams.add("%${name.toLowerCase()}%");
     }
 
-    query += "ORDER BY createdAt DESC";
+    query += "COLLATE NOCASE ";
+
+    if (isOrderByAsc) {
+      query += "ORDER BY name ASC ";
+    } else {
+      query += "ORDER BY name DESC ";
+    }
 
     return db
       .select(query, queryParams)
