@@ -16,7 +16,7 @@ void main() async {
   settingsRepository = SettingsRepository();
   var isDarkModeOn = settingsRepository.getPreference<bool>(Constants.settingsIsDarkModeOnParam) ?? false;
   currentTheme = isDarkModeOn ? darkTheme : lightPurpleTheme;
-
+  
   runApp(const App());
 }
 

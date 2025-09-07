@@ -171,7 +171,7 @@ class OrderRepository {
     var query = "SELECT rowid, * FROM Orders ";
     List<(String queryString, Object queryParam)> whereClauses = [];
 
-    if (description != null) {
+    if (description != null && description.isNotEmpty) {
       whereClauses.add(
         ("description LIKE ?", "%$description%")
       );
@@ -185,7 +185,7 @@ class OrderRepository {
     }
 
     if (whereClauses.isNotEmpty) {
-      query += "WHERE ${whereClauses.map((clause) => clause.$1).join('AND')}";
+      query += "WHERE ${whereClauses.map((clause) => clause.$1).join(' AND ')}";
     }
 
     if (isOrderByAsc) {

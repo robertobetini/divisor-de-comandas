@@ -93,7 +93,7 @@ class Order {
     }
   }
 
-  OrderPayerSharings? linkPayerToItem(OrderItem item, Payer payer) {
+  OrderPayerSharings? linkPayerToItem(OrderItem item, Payer payer, { int quantity = 1 }) {
     var payerFound = false;
 
     for (int i = 0; i < _payers.length; i++) {
@@ -111,7 +111,7 @@ class Order {
       throw Exception("Pagador não encontrado na comanda!");
     }
 
-    var orderPayerSharings = OrderPayerSharings(payer, item);
+    var orderPayerSharings = OrderPayerSharings(payer, item, quantity: quantity);
 
     item.sharings.add(orderPayerSharings);
     payer.sharings.add(orderPayerSharings);
@@ -252,13 +252,13 @@ class Payer {
 }
 
 class OrderPayerSharings {
-  OrderPayerSharings(this.payer, this.orderItem);
+  OrderPayerSharings(this.payer, this.orderItem, { this.quantity = 1 });
   OrderPayerSharings.fromDb(this.id, this.payer, this.orderItem, this.quantity);
 
   int id = 0;
   final Payer payer;
   final OrderItem orderItem;
-  int quantity = 1;
+  int quantity;
 
   Decimal getSharingSubtotal() {
     Decimal total = Decimal.zero;

@@ -8,7 +8,7 @@ class HeaderFiltersFactory {
       TextEditingController? textController, 
       String? hintText,
       void Function()? onCleared, 
-      void Function()? onDateChanged,
+      Future Function()? onDateChanged,
       void Function()? onSortChanged,
       bool? currentSortValue
     }
@@ -48,7 +48,10 @@ class HeaderFiltersFactory {
 
     if (onDateChanged != null) {
       var datePicketButton = IconButton(
-        onPressed: () => setState(onDateChanged), 
+        onPressed: () async {
+          await onDateChanged();
+          setState(() {});
+        },  
         icon: Icon(Icons.date_range)
       );
 
@@ -57,7 +60,7 @@ class HeaderFiltersFactory {
 
     if (onSortChanged != null) {
       var sortButton = IconButton(
-        onPressed: () => setState(onSortChanged), 
+        onPressed: () async => setState(onSortChanged), 
         icon: Stack(
           alignment: AlignmentGeometry.bottomRight,
           children: [

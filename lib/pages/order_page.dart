@@ -93,7 +93,7 @@ class _OrderPageState extends State<OrderPage> {
                       spaceBetweenTextAndIcon,
                       Row(
                         children: [
-                          order.hasServiceCharge ? Icon(Icons.percent, size: 18) : Text(""),
+                          order.hasServiceCharge ? Icon(Icons.toll, size: 18) : Text(""),
                           order.isConciliated() ? Icon(Icons.price_check, size: 18) : Text(""),
                           Icon(Icons.group, size: 18),
                           spaceBetweenTextAndIcon,
