@@ -5,16 +5,16 @@ class PeopleRepository {
   static final db = DbContext.connect();
 
   void add(People people) {
-    var stmt = db.prepare("INSERT INTO Peoples (name, qName, createdAt, isDeleted) VALUES (?, ?, ?, 0)");
-    stmt.execute([people.name, people.qName, people.createdAt.millisecondsSinceEpoch]);
+    var stmt = db.prepare("INSERT INTO Peoples (name, createdAt, isDeleted) VALUES (?, ?, 0)");
+    stmt.execute([people.name, people.createdAt.millisecondsSinceEpoch]);
     stmt.dispose();
 
     people.id = db.lastInsertRowId;
   }
 
   void update(People people) {
-    var stmt = db.prepare("UPDATE Peoples SET name = ?, qName = ? WHERE rowid = ? AND isDeleted = 0");
-    stmt.execute([people.name, people.qName, people.id]);
+    var stmt = db.prepare("UPDATE Peoples SET name = ? WHERE rowid = ? AND isDeleted = 0");
+    stmt.execute([people.name, people.id]);
     stmt.dispose();
   }
 
@@ -27,9 +27,19 @@ class PeopleRepository {
       .firstOrNull;
   }
 
-  List<People> getAll() {
+  List<People> getAll({ String? name }) {
+    var query = "SELECT rowid, * FROM Peoples WHERE isDeleted = 0 ";
+    var queryParams = [];
+
+    if (name != null) {
+      query += "AND name LIKE ? ";
+      queryParams.add("%$name%");
+    }
+
+    query += "ORDER BY createdAt DESC";
+
     return db
-      .select("SELECT rowid, * FROM Peoples WHERE isDeleted = 0 ORDER BY createdAt DESC")
+      .select(query, queryParams)
       .map<People>((row) {
         return People.fromDb(row["rowid"], row["name"], row["createdAt"]);
       })
@@ -42,7 +52,7 @@ class PeopleRepository {
     }
 
     return db
-      .select("SELECT rowid, * FROM Peoples WHERE qName LIKE ? AND isDeleted = 0", ["%$substring%"])
+      .select("SELECT rowid, * FROM Peoples WHERE name LIKE ? AND isDeleted = 0", ["%$substring%"])
       .map<People>((row) {
         return People.fromDb(row["rowid"], row["name"], row["createdAt"]);
       })

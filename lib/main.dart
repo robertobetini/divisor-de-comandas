@@ -1,5 +1,6 @@
 import 'package:divisao_contas/db/db_context.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'constants.dart';
 import 'pages/home_page.dart';
 import 'themes.dart';
@@ -35,7 +36,6 @@ class App extends StatefulWidget {
       currentTheme = themeData;
     });
   }
-  
 }
 
 class _AppState extends State<App> {
@@ -45,7 +45,17 @@ class _AppState extends State<App> {
       title: "Divisor de comandas",
       theme: currentTheme,
       // darkTheme: darkGreenTheme,
-      home: const HomePage(title: "Divisor de comandas")
+      home: const HomePage(title: "Divisor de comandas"),
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('pt', 'BR'),
+        Locale('es', 'ES'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate
+      ],
     );
   }
 }

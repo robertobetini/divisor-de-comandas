@@ -26,9 +26,11 @@ class PeoplePage extends StatefulWidget {
 }
 
 class _PeoplePageState extends State<PeoplePage> {
+  var nameController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    var peoples = peopleRepository.getAll();
+    var peoples = peopleRepository.getAll(name: nameController.text);
 
     return Scaffold(
       appBar: AppBar(
@@ -36,6 +38,33 @@ class _PeoplePageState extends State<PeoplePage> {
       ),
       body: Column(
         children: [
+          Padding(
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
+            child: Container(
+              color: Constants.containerdefaultColor,
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        icon: Icon(Icons.search)
+                      ),
+                      onChanged: (value) => setState(() {}),
+                    )
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      setState(() => nameController.clear());
+                    }, 
+                    icon: Icon(Icons.clear_all)
+                  ),
+                ],
+              )
+            )
+          ),
           Expanded(
             child: PaddedListView(
               itemCount: peoples.length,
@@ -77,7 +106,10 @@ class _PeoplePageState extends State<PeoplePage> {
           var resultado = await Navigator.of(context).push(route);
 
           if (resultado != null) {
-            setState(() => peopleRepository.add(resultado as People));
+            setState(() { 
+              peopleRepository.add(resultado as People); 
+              nameController.clear();
+            });
           }
         },
         child: const Icon(Icons.person_add_alt_1)

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../constants.dart';
 import '../custom_widgets/padded_list_view.dart';
 import 'order_form_pages/order_form_page.dart';
 import 'order_summary_page/order_summary_page.dart';
@@ -15,7 +16,7 @@ MaterialPageRoute createOrderRoute(BuildContext context) {
 }
 
 class OrderPageRoute extends MaterialPageRoute<void> {
-  OrderPageRoute({required super.builder});
+  OrderPageRoute({ required super.builder });
 }
 
 class OrderPage extends StatefulWidget {
@@ -28,9 +29,18 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
+  DateTimeRange? orderDateTimeRange;
+
+  var descriptionController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    var orders = orderRepository.getAll(deepSearch: true);
+    var orders = orderRepository.getAll(
+      deepSearch: true, 
+      description: descriptionController.text,
+      startDate: orderDateTimeRange?.start,
+      endDate: orderDateTimeRange?.end
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -38,6 +48,56 @@ class _OrderPageState extends State<OrderPage> {
       ),
       body: Column(
         children: [
+          Padding(
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
+            child: Container(
+              color: Constants.containerdefaultColor,
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: descriptionController,
+                      decoration: const InputDecoration(
+                        icon: Icon(Icons.search)
+                      ),
+                      onChanged: (value) => setState(() {}),
+                    )
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        descriptionController.clear();
+                        orderDateTimeRange = null;
+                      });
+                    }, 
+                    icon: Icon(Icons.clear_all)
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      var dateTimeRange = await showDateRangePicker(
+                        context: context, 
+                        firstDate: DateTime(2000), 
+                        lastDate: DateTime.now()
+                      );
+
+                      if (dateTimeRange == null) {
+                        return;
+                      }
+
+                      setState(() => orderDateTimeRange = DateTimeRange(
+                        start: dateTimeRange.start, 
+                        end: DateTime(dateTimeRange.end.year, dateTimeRange.end.month, dateTimeRange.end.day + 1))
+                      );
+                    }, 
+                    icon: Icon(Icons.date_range)
+                  )
+                ],
+              )
+            )
+          ),
+          
           Expanded(
             child: PaddedListView(
               itemCount: orders.length,
@@ -93,9 +153,13 @@ class _OrderPageState extends State<OrderPage> {
         onPressed: () async {
           var route = createOrderFormRoute(context);
           var result = await Navigator.of(context).push(route);
+          descriptionController.clear();
 
           if (result != null) {
-            setState(() => orderRepository.add(result as Order));
+            setState(() {
+              orderRepository.add(result as Order);
+              descriptionController.clear();
+            });
           }
         },
         child: const Icon(Icons.format_list_bulleted_add)

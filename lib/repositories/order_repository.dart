@@ -167,9 +167,31 @@ class OrderRepository {
       return order;
   }
 
-  List<Order> getAll({ bool deepSearch = false }) {
+  List<Order> getAll({ bool deepSearch = false, String? description, DateTime? startDate, DateTime? endDate }) {
+    var query = "SELECT rowid, * FROM Orders ";
+    List<(String queryString, Object queryParam)> whereClauses = [];
+
+    if (description != null) {
+      whereClauses.add(
+        ("description LIKE ?", "%$description%")
+      );
+    }
+
+    if (startDate != null && endDate != null) {
+      whereClauses.addAll([
+        ("createdAt >= ?", startDate.millisecondsSinceEpoch),
+        ("createdAt < ?", endDate.millisecondsSinceEpoch)
+      ]);
+    }
+
+    if (whereClauses.isNotEmpty) {
+      query += "WHERE ${whereClauses.map((clause) => clause.$1).join('AND')}";
+    }
+
+    query += "ORDER BY createdAt DESC ";
+    
     final orders = db
-      .select("SELECT rowid, * FROM Orders ORDER BY createdAt DESC")
+      .select(query, whereClauses.map((clause) => clause.$2).toList())
       .map<Order>((row) => Order.fromDb(
           row["rowid"],
           row["description"], 
