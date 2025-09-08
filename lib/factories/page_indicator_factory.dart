@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../themes.dart';
 
 class PageIndicatorFactory {
   static Positioned create(int pageCount, int currentPage) {
@@ -15,7 +16,7 @@ class PageIndicatorFactory {
             width: currentPage == index ? 12 : 8,
             height: currentPage == index ? 12 : 8,
             decoration: BoxDecoration(
-              color: currentPage == index ? const Color(0xFF8C75A8) : const Color(0xFF8E839A),
+              color: currentPage == index ? currentTheme.highlightColor : currentTheme.disabledColor,
               shape: BoxShape.circle,
             ),
           ),

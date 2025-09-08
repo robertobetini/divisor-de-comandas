@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../constants.dart';
 import '../custom_widgets/padded_list_view.dart';
 import '../factories/header_filters_factory.dart';
+import '../factories/padded_list_tile_factory.dart';
 import 'order_form_pages/order_form_page.dart';
 import 'order_summary_page/order_summary_page.dart';
 import '../repositories/order_repository.dart';
@@ -78,11 +78,12 @@ class _OrderPageState extends State<OrderPage> {
           ),
           Expanded(
             child: PaddedListView(
+              ensureListIsReadable: true,
               itemCount: orders.length,
               itemBuilder: (context, index) {
                 var order = orders[index];
 
-                return PaddedListTile(
+                return PaddedListTileFactory.create(
                   contentPadding: EdgeInsets.symmetric(horizontal: 10),
                   leading: resolveStatusIcon(order),
                   title: Row(
@@ -99,8 +100,7 @@ class _OrderPageState extends State<OrderPage> {
                           spaceBetweenTextAndIcon,
                           Text(order.getPayers().length.toString()),
                         ],
-                      ),
-                      
+                      )
                     ],
                   ),
                   subtitle: Text(order.description ?? "", maxLines: 4, overflow: TextOverflow.ellipsis,),

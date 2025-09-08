@@ -12,9 +12,7 @@ class PaddedListTile extends ListTile implements PaddedTile {
     super.onLongPress,
     super.contentPadding,
     super.minLeadingWidth,
-    super.iconColor = const Color(0xEE594176),
-    super.tileColor = const Color(0xBBCEC1DD),
-    super.textColor = const Color(0xFF3B2B4F),
+    super.tileColor = Colors.transparent,
     super.shape = const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12)))
   });
 }
@@ -26,21 +24,29 @@ class PaddedExpansionTile extends ExpansionTile implements PaddedTile {
     super.subtitle,
     super.trailing,
     super.children,
-    super.iconColor = const Color(0xEE594176),
-    super.collapsedIconColor = const Color(0xEE594176),
     super.shape = const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
     super.collapsedShape = const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12)))
   });
 }
 
 class PaddedListView extends ListView {
-  PaddedListView({ required this.itemCount, required this.itemBuilder });
+  PaddedListView({ required this.itemCount, required this.itemBuilder, this.ensureListIsReadable = false });
 
   final int itemCount;
   final PaddedTile? Function(BuildContext, int) itemBuilder;
+  final bool ensureListIsReadable;
 
   @override
   Widget build(BuildContext context) {
+    if (ensureListIsReadable) {
+      return ListView.builder(
+        itemCount: itemCount + 1,
+        itemBuilder: (context, index) => index == itemCount 
+          ? PaddedListTile(title: SizedBox(height: 60))
+          : Padding(padding: EdgeInsetsGeometry.fromLTRB(10, 8, 10, 0), child: itemBuilder(context, index))
+      );  
+    }
+
     return ListView.builder(
       itemCount: itemCount,
       itemBuilder: (context, index) => Padding(padding: EdgeInsetsGeometry.fromLTRB(10, 8, 10, 0), child: itemBuilder(context, index))

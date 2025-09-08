@@ -4,6 +4,7 @@ import '../../constants.dart';
 import '../../custom_widgets/constrained_text_field.dart';
 import '../../factories/counter_factory.dart';
 import '../../factories/edge_insets_factory.dart';
+import '../../factories/padded_list_tile_factory.dart';
 import '../../models/order.dart';
 import '../utils.dart';
 
@@ -47,7 +48,7 @@ Widget createPage1(BuildContext context, Order order, Function setState, TextEdi
           itemCount: orderItems.length,
           itemBuilder: (context, index) {
             var item = orderItems[index];
-            return PaddedListTile(
+            return PaddedListTileFactory.create(
               contentPadding: EdgeInsets.zero,
               leading: CounterFactory.create(
                 quantity: item.quantity,

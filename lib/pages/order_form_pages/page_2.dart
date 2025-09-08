@@ -40,6 +40,7 @@ Widget createPage2(BuildContext context, Order order, Function setState, TextEdi
       ),
       Expanded(
         child: PaddedListView(
+          ensureListIsReadable: true,
           itemCount: payers.length,
           itemBuilder: (context, index) {
             var payer = payers[index];

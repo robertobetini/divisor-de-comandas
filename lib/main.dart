@@ -7,7 +7,6 @@ import 'themes.dart';
 import 'repositories/settings_repository.dart';
 
 late SettingsRepository settingsRepository;
-late ThemeData currentTheme;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

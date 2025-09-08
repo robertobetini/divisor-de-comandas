@@ -2,6 +2,7 @@ import 'package:divisao_contas/custom_widgets/padded_list_view.dart';
 import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../factories/header_filters_factory.dart';
+import '../factories/padded_list_tile_factory.dart';
 import '../repositories/people_repository.dart';
 import 'people_form_page.dart';
 import '../models/people.dart';
@@ -50,10 +51,11 @@ class _PeoplePageState extends State<PeoplePage> {
           ),
           Expanded(
             child: PaddedListView(
+              ensureListIsReadable: true,
               itemCount: peoples.length,
               itemBuilder: (context, index) {
                 var people = peoples[index];
-                return PaddedListTile(
+                return PaddedListTileFactory.create(
                   title: Text(people.name),
                   trailing: IconButton(
                     onPressed: () async { 

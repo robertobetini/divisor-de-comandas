@@ -6,7 +6,7 @@ import '../utils.dart';
 Widget createPage2(BuildContext context, Order order) {
   var payers = order
     .getPayers()
-    .map<PaddedExpansionTile>((payer) {
+    .map<PaddedTile>((payer) {
       var summaryDetails = payer.sharings
         .map<Widget>((sharing) {
           var sharingTotal = sharing.getSharingSubtotal();
@@ -30,16 +30,7 @@ Widget createPage2(BuildContext context, Order order) {
         );
       }
 
-      summaryDetails.add(
-        Divider(
-          thickness: 3, 
-          indent: 30, 
-          endIndent: 30, 
-          radius: BorderRadiusGeometry.all(Radius.circular(10)),
-          color: Theme.of(context).colorScheme.secondary
-        )
-      );
-
+      summaryDetails.add(Divider());
       summaryDetails.add(
         ListTile(
           leading: const Text(""),
@@ -59,6 +50,7 @@ Widget createPage2(BuildContext context, Order order) {
     children: [
       Expanded(
         child: PaddedListView(
+          ensureListIsReadable: true,
           itemCount: payers.length,
           itemBuilder: (context, index) {
             return payers[index];

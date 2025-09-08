@@ -1,5 +1,10 @@
+import 'package:divisao_contas/repositories/settings_repository.dart';
+import 'package:divisao_contas/themes.dart';
 import 'package:flutter/material.dart';
+
 import '../constants.dart';
+
+var settingsRepository = SettingsRepository();
 
 class HeaderFiltersFactory {
   static Widget create({
@@ -20,7 +25,7 @@ class HeaderFiltersFactory {
         child: TextField(
           controller: textController,
           decoration: InputDecoration(
-            hint: Text(hintText ?? "", style: TextStyle(color: Constants.textHintColor, fontSize: 16)),
+            hint: Text(hintText ?? "", style: TextStyle(color: currentTheme.hintColor, fontSize: 16)),
             hintFadeDuration: Duration(milliseconds: 200),
             prefixIcon: Icon(Icons.search),
             prefixIconConstraints: BoxConstraints(maxWidth: 32),
@@ -73,16 +78,15 @@ class HeaderFiltersFactory {
       children.add(sortButton);
     }
 
-    return Padding(
-      padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
-      child: Container(
-        color: Constants.containerdefaultColor,
+    var isDarkModeOn = settingsRepository.getPreference<bool>(Constants.settingsIsDarkModeOnParam) ?? false;
+
+    return Container(
+        color: isDarkModeOn ? Constants.darkThemeTransparent : Constants.lightThemeTransparent ,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.end,
           children: children,
         )
-      )
-    );
+      );
   }
 }
