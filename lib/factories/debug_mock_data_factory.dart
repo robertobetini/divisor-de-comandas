@@ -8,7 +8,8 @@ import '../repositories/people_repository.dart';
 final peopleRepository = PeopleRepository();
 
 class DebugMockDataFactory {
-  static List<Order> createManyOrders(int count) => List.generate(count, (index) => createOrder(random.boolean()));
+  static List<Order> createManyOrders(int count, { int maxItems = 5, int maxPayers = 5 }) => 
+    List.generate(count, (index) => createOrder(false, maxItems: maxItems, maxPayers: maxPayers));
 
   static Order createOrder(bool ensureConciliated, { int maxItems = 5, int maxPayers = 5 }) {
     var order = Order();
@@ -54,20 +55,34 @@ class DebugMockDataFactory {
         (index) => random.integer(item.quantity - itemQuantityToRemainUnlinked)
       );
 
+      var randomIndex = random.integer(payers.length);
+      var randomPayer = payers[randomIndex];
+
       if (!quantities.any((q) => q == item.quantity)) {
         var randomQuantityIndex = random.integer(quantities.length);
         quantities[randomQuantityIndex] = item.quantity;
       }
+
+      var sharing = order.linkPayerToItem(item, randomPayer, quantity: 0);
+      sharing?.quantity++;
     }
     
     return order;
   }
   
-  static List<OrderItem> createManyItems(int max) {
+  static List<OrderItem>createManyItems(int max) {
+    var foods = <String, bool>{};
+
     return List.generate(
       random.integer(max, min: 1), 
       (index) {
-        var product = Product(name: faker.food.cuisine(), price: Decimal.parse(random.decimal(scale: 100).toStringAsFixed(2)));
+        var food = faker.food.cuisine();
+        if (foods.containsKey(food)) {
+          food += " - ${faker.guid.guid()}";
+        }
+        foods[food] = true;
+
+        var product = Product(name: food, price: Decimal.parse(random.decimal(scale: 100).toStringAsFixed(2)));
         product.id = index;
         var orderItem = OrderItem(product, isIndividual: random.boolean(), quantity: random.integer(6, min: 1));
         orderItem.id = index;
@@ -78,11 +93,18 @@ class DebugMockDataFactory {
   }
 
   static List<Payer> createManyPayers(int max) {
+    var peoples = <String, bool>{};
+
     return List.generate(
       random.integer(max, min: 1), 
       (index) {
+        var name = faker.person.name();
+        if (peoples.containsKey(name)) {
+          name += " - ${faker.guid.guid()}";
+        }
+        peoples[name] = true;
 
-        var people = People(faker.person.name());
+        var people = People(name);
         peopleRepository.add(people);
 
         var payer = Payer(people);

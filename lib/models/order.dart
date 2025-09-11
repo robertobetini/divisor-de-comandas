@@ -94,23 +94,15 @@ class Order {
   }
 
   OrderPayerSharings? linkPayerToItem(OrderItem item, Payer payer, { int quantity = 1 }) {
-    var payerFound = false;
-
-    for (int i = 0; i < _payers.length; i++) {
-      var existingSharing = payer.sharings.where((sharing) => sharing.orderItem.product.name == item.product.name).firstOrNull;
-      if (existingSharing != null) {
-        return existingSharing;
-      }
-
-      if (payer.people.id == _payers[i].people.id) {
-        payerFound = true;
-      }
-    }
-    
-    if (!payerFound) {
+    if (!_payers.any((p) => p.id == payer.id)) {
       throw Exception("Pagador não encontrado na comanda!");
     }
 
+    var existingSharing = payer.sharings.where((sharing) => sharing.orderItem.product.name == item.product.name).firstOrNull;
+    if (existingSharing != null) {
+      return existingSharing;
+    }
+    
     var orderPayerSharings = OrderPayerSharings(payer, item, quantity: quantity);
 
     item.sharings.add(orderPayerSharings);

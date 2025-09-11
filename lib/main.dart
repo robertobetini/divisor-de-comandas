@@ -1,5 +1,6 @@
 import 'package:divisao_contas/db/db_context.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'constants.dart';
 import 'pages/home_page.dart';
@@ -40,6 +41,11 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    
     return MaterialApp(
       title: "Divisor de comandas",
       theme: currentTheme,

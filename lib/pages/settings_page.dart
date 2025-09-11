@@ -129,7 +129,7 @@ class _SettingsPageState extends State<SettingsPage> {
           leading: Icon(Icons.bug_report),
           title: Text("Gerar mocks para teste"),
           onTap: () async {
-            var mockedOrders = DebugMockDataFactory.createManyOrders(20);
+            var mockedOrders = DebugMockDataFactory.createManyOrders(20, maxItems: 20, maxPayers: 5);
             for (var order in mockedOrders) {
               orderRepository.add(order);
             }

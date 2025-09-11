@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' as  material;
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
+import 'package:pix_flutter/pix_flutter.dart';
 import '../models/order.dart';
 import '../themes.dart';
 
@@ -20,7 +21,7 @@ class OrderPdfFactory {
   OrderPdfFactory(material.ThemeData theme);
 
   final headerTextStyle = TextStyle(color: mapColor(currentTheme.textTheme.bodyMedium?.color));
-  final peopleNameTextStyle = TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: mapColor(currentTheme.textTheme.bodyMedium?.color));
+  final pageTitleTextStyle = TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: mapColor(currentTheme.textTheme.bodyMedium?.color));
   final listLeadingAndTrailTextStyle = TextStyle(fontWeight: FontWeight.bold, color: mapColor(currentTheme.listTileTheme.textColor));
   final listTitleTextStyle = TextStyle(color: mapColor(currentTheme.listTileTheme.textColor));
   final listSubtitleTextStyle = TextStyle(fontSize: 11, color: mapColor(currentTheme.listTileTheme.textColor));
@@ -44,51 +45,68 @@ class OrderPdfFactory {
     var summaryItems = _createSummaryItems(order);
 
     final pdf = Document();
-    pdf.addPage(
-      Page(
-        pageTheme: pageTheme,
-        build: (context) => Center(
-          child: Column(
-            children: [
-              Text(dateFormatter.format(order.createdAt), style: headerTextStyle),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: Text(order.description ?? "", style: headerTextStyle)
-              ),
-              _getDivider(),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: summaryItems
-              ),
-              _getConciliationWarning(order)
-            ]
+
+    var header = Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Text(dateFormatter.format(order.createdAt), style: headerTextStyle),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Text("Comanda Virtual #${order.id}", style: pageTitleTextStyle)
           )
-        ),
+        ]
+      )
+    );
+
+    pdf.addPage(
+      MultiPage(
+        header: (context) => header,
+        pageTheme: pageTheme,
+        build: (context) => [
+          Center(
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(order.description ?? "", style: headerTextStyle)
+                ),
+                _getConciliationWarning(order),
+              ]
+            )
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: summaryItems
+          )
+        ],
       ),
     );
 
     for (var payer in order.getPayers()) {
+      var header = Center(
+        child: Column(
+          children: [
+            Text(dateFormatter.format(order.createdAt), style: headerTextStyle),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Text(payer.people.name, style: pageTitleTextStyle)
+            )
+          ]
+        )
+      );
       var payerDetailedItems = _createPayerDetailedItems(payer, order);
 
       pdf.addPage(
-        Page(
+        MultiPage(
+          header: (context) => header,
           pageTheme: pageTheme,
-          build: (context) => Center(
-            child: Column(
-              children: [
-                Text(dateFormatter.format(order.createdAt), style: headerTextStyle),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Text(payer.people.name, style: peopleNameTextStyle)
-                ),
-                _getDivider(),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: payerDetailedItems
-                )
-              ]
+          build: (context) => [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: payerDetailedItems
             )
-          ),
+          ],
         ),
       );
     }
@@ -98,9 +116,8 @@ class OrderPdfFactory {
 
   Divider _getDivider() => Divider(
       color: mapColor(currentTheme.dividerTheme.color),
-      thickness: 2,
-      indent: 30,
-      endIndent: 30,
+      thickness: currentTheme.dividerTheme.thickness,
+      indent: currentTheme.dividerTheme.indent,
       borderStyle: BorderStyle(phase: 1)
     );
 
@@ -166,14 +183,64 @@ class OrderPdfFactory {
       );
     }
 
+    var payerTotal = payer.getTotal(order.hasServiceCharge);
+
     items.add(_getDivider());
     items.add(
       ListTile(
         leading: Text("", style: listLeadingAndTrailTextStyle),
         title: Text("Total", style: totalTextStyle),
-        trailing: Text("\$${payer.getTotal(order.hasServiceCharge).toStringAsFixed(2)}", style: listLeadingAndTrailTextStyle)
+        trailing: Text("\$${payerTotal.toStringAsFixed(2)}", style: listLeadingAndTrailTextStyle)
       )
     );
+
+    items.add(SizedBox(height: 40));    
+
+    if (payerTotal > Decimal.zero) {
+      var pix = PixFlutter(
+        payload: Payload(
+          pixKey: "Fake Key",
+          merchantName: "Fake Name",
+          merchantCity: "Fake City",
+          amount: payerTotal.toStringAsFixed(2),
+          txid: DateTime.now().toString()
+        )
+      );
+
+      print(pix.getQRCode());
+
+      var barcode = BarcodeWidget(
+        color: mapColor(currentTheme.listTileTheme.textColor),
+        barcode: Barcode.qrCode(),
+        data: pix.getQRCode(),
+        width: 100,
+        height: 100
+      );
+
+      var pixItem = Center(
+        child: Column(
+          children: [
+            barcode,
+            SizedBox(height: 20),
+            Text("Atenção!", style: listSubtitleTextStyle),
+            Text("Sempre confirme o destinatário e o valor da transação antes de efetuá-la.", style: listSubtitleTextStyle)
+          ]
+        )
+      );
+
+      // items.add(barcode);
+      // items.add(SizedBox(height: 20));
+      // items.add(Text("Atenção!", style: listSubtitleTextStyle));
+      // items.add(Text("Sempre confirme o destinatário e o valor da transação antes de efetuá-la.", style: listSubtitleTextStyle));
+
+      items.add(pixItem);
+    } else {
+      items.add(
+        Center(
+          child: Text("Nada a pagar! :D", style: listSubtitleTextStyle)
+        )
+      );
+    }
 
     return items;
   }
@@ -184,25 +251,17 @@ class OrderPdfFactory {
       mainAxisSize: MainAxisSize.min,
       children: [
         // Icon(IconData(Icons)),
-        SizedBox(width: 8),
+        // SizedBox(width: 8),
         Text("Existem itens não atribuídos na comanda", style: conciliationWarningTextStyle)
       ],
     );
 
   Row _createItemTitle(OrderItem item, { bool showConciliationStatus = false }) { 
     var children = [
-      // resolveSharingTypeButton(item.isIndividual),
-      // spaceBetweenTextAndIcon,
       Text(item.product.name, style: listTitleTextStyle)
     ];
 
-    // if (showConciliationStatus && !item.isConciliated()) {
-    //   children.insert(1, warningIcon);
-    // }
-
     return Row(
-      // mainAxisSize: MainAxisSize.min,
-      // mainAxisAlignment: MainAxisAlignment.start,
       children: children
     );
   }

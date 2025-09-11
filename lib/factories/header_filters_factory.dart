@@ -81,7 +81,8 @@ class HeaderFiltersFactory {
     var isDarkModeOn = settingsRepository.getPreference<bool>(Constants.settingsIsDarkModeOnParam) ?? false;
 
     return Container(
-        color: isDarkModeOn ? Constants.darkThemeTransparent : Constants.lightThemeTransparent ,
+        color: isDarkModeOn ? Constants.darkThemeTransparent : Constants.lightThemeTransparent,
+        padding: EdgeInsets.symmetric(horizontal: 10),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.end,

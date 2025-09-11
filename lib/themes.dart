@@ -107,10 +107,10 @@ final ThemeData lightPurpleTheme = ThemeData(
     onError: Color(0xFFF5F6FA),       // texto claro sobre error
   ),
   dividerTheme: DividerThemeData(
-    color: const Color(0xAAB06FA7),
+    color: const Color(0x66B06FA7),
     thickness: 2,
-    indent: 30,
-    endIndent: 30,
+    indent: 50,
+    endIndent: 20,
     radius: BorderRadius.all(Radius.circular(12))
   ),
   appBarTheme: const AppBarTheme(
