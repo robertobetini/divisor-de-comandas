@@ -1,6 +1,6 @@
-import 'package:divisao_contas/custom_widgets/padded_list_view.dart';
-import 'package:divisao_contas/factories/counter_factory.dart';
 import 'package:flutter/material.dart';
+import '../../custom_widgets/padded_list_view.dart';
+import '../../factories/counter_factory.dart';
 import '../../constants.dart';
 import '../../models/order.dart';
 import '../utils.dart';

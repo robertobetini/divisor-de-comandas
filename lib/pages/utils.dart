@@ -1,6 +1,5 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
-
 import '../constants.dart';
 import '../factories/validation_text_factory.dart';
 import '../models/order.dart';

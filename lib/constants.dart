@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 class Constants {
   static const String settingsIsDarkModeOnParam = "isDarkModeOn";
+  static const String settingsCurrentNameParam = "currentName";
+  static const String settingsCurrentPixKeyParam = "currentPixKey";
+  static const String settingsIncludePixOnPdfParam = "includePixOnPdf";
+  static const String settingsPixKeyTypeParam = "pixKeyType";
 
   static const int maxOrderDescriptionLength = 128;
   static const int maxOrderItemCount = 99;
@@ -17,4 +21,9 @@ class Constants {
   static const Color warningColor = Color(0xFFE69500);
   static const Color lightThemeTransparent = Color(0x22FFFFFF);
   static const Color darkThemeTransparent = Color(0x22000000);
+
+  static const Widget noContentWidget = Padding(
+    padding: EdgeInsetsGeometry.symmetric(vertical: 18),
+    child: Text("Nenhum resultado", style: TextStyle(fontSize: 16))
+  );
 }

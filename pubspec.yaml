@@ -11,6 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   intl: ^0.20.2
   decimal: ^3.2.4
@@ -19,7 +21,6 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.39
   path_provider: ^2.1.5
   path: ^1.9.1
-  flutter_localization: ^0.3.3
   printing: ^5.14.2
   pdf: ^3.11.3
   pix_flutter: ^2.2.0

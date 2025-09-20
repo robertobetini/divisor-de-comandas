@@ -4,8 +4,8 @@ import '../constants.dart';
 import '../factories/header_filters_factory.dart';
 import '../factories/padded_list_tile_factory.dart';
 import '../repositories/people_repository.dart';
-import 'people_form_page.dart';
 import '../models/people.dart';
+import 'people_form_page.dart';
 import 'utils.dart';
 
 var peopleRepository = PeopleRepository();
@@ -49,40 +49,42 @@ class _PeoplePageState extends State<PeoplePage> {
             onSortChanged: () => isOrderByAsc = !isOrderByAsc,
             currentSortValue: isOrderByAsc
           ),
-          Expanded(
-            child: PaddedListView(
-              ensureListIsReadable: true,
-              itemCount: peoples.length,
-              itemBuilder: (context, index) {
-                var people = peoples[index];
-                return PaddedListTileFactory.create(
-                  title: Text(people.name),
-                  trailing: IconButton(
-                    onPressed: () async { 
-                      var isRemovalConfirmed = await showDialog(
-                        context: context, 
-                        builder: deleteItemDialogBuilder
-                      );
+          peoples.isEmpty 
+            ? Constants.noContentWidget
+            : Expanded(
+              child: PaddedListView(
+                ensureListIsReadable: true,
+                itemCount: peoples.length,
+                itemBuilder: (context, index) {
+                  var people = peoples[index];
+                  return PaddedListTileFactory.create(
+                    title: Text(people.name),
+                    trailing: IconButton(
+                      onPressed: () async { 
+                        var isRemovalConfirmed = await showDialog(
+                          context: context, 
+                          builder: deleteItemDialogBuilder
+                        );
 
-                      if (isRemovalConfirmed == true) {
-                        setState(() => peopleRepository.remove(people.id));
+                        if (isRemovalConfirmed == true) {
+                          setState(() => peopleRepository.remove(people.id));
+                        }
+                      },
+                      icon: Icon(Icons.delete, color: Constants.dangerColor)
+                    ),
+                    onLongPress: () async {
+                      var people = peoples[index];
+                      var route = createPeopleFormRoute(context, people: people);
+                      var resultado = await Navigator.of(context).push(route);
+
+                      if (resultado != null) {
+                        setState(() => peopleRepository.update(resultado as People));
                       }
                     },
-                    icon: Icon(Icons.delete, color: Constants.dangerColor)
-                  ),
-                  onLongPress: () async {
-                    var people = peoples[index];
-                    var route = createPeopleFormRoute(context, people: people);
-                    var resultado = await Navigator.of(context).push(route);
-
-                    if (resultado != null) {
-                      setState(() => peopleRepository.update(resultado as People));
-                    }
-                  },
-                );
-              },
+                  );
+                },
+              )
             )
-          )
         ]
       ),
       floatingActionButton: FloatingActionButton(

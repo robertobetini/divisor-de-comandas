@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import '../../factories/order_pdf_factory.dart';
+import '../../models/order.dart';
+import '../../themes.dart';
 
-MaterialPageRoute createPdfPreviewRoute(BuildContext context, pw.Document pdf) {
-  return PdfPreviewRoute(builder: (context) => PdfPreviewPage(title: "Gerar PDF", pdf: pdf));
+MaterialPageRoute createPdfPreviewRoute(BuildContext context, Order order) {
+  return PdfPreviewRoute(builder: (context) => PdfPreviewPage(title: "Gerar PDF", order: order));
 }
 
 class PdfPreviewRoute extends MaterialPageRoute<void> {
@@ -11,19 +13,19 @@ class PdfPreviewRoute extends MaterialPageRoute<void> {
 }
 
 class PdfPreviewPage extends StatefulWidget {
-  PdfPreviewPage({ required this.title, required this.pdf });
+  PdfPreviewPage({ required this.title, required this.order });
 
   final String title;
-  final pw.Document pdf;
+  final Order order;
 
   @override
-  State<StatefulWidget> createState() => _PdfPreviewPageState(pdf);
+  State<StatefulWidget> createState() => _PdfPreviewPageState(order);
 }
 
 class _PdfPreviewPageState extends State<PdfPreviewPage> {
-  _PdfPreviewPageState(this.pdf);
+  _PdfPreviewPageState(this.order);
 
-  final pw.Document pdf;
+  final Order order;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,9 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
       appBar: AppBar(title: const Text("Gerar PDF da comanda")),
       body: PdfPreview(
         build: (format) async {
+          var orderPdfFactory = OrderPdfFactory(currentTheme);
+          var pdf = await orderPdfFactory.create(order);
+          
           return await pdf.save();
         },
       ),

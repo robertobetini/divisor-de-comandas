@@ -1,3 +1,5 @@
+import 'package:divisao_contas/models/pix_type.dart';
+
 import '../db/db_context.dart';
 
 class SettingsRepository {
@@ -37,6 +39,8 @@ class SettingsRepository {
         return int.parse(value) as T;
       case "double":
         return double.parse(value) as T;
+      case "pixtype":
+        return PixType.values.where((type) => type.toString() == value).firstOrNull as T?;
       default:
         return null;
     }

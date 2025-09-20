@@ -1,7 +1,7 @@
-import 'package:divisao_contas/db/db_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'db/db_context.dart';
 import 'constants.dart';
 import 'pages/home_page.dart';
 import 'themes.dart';
@@ -15,7 +15,7 @@ void main() async {
 
   settingsRepository = SettingsRepository();
   var isDarkModeOn = settingsRepository.getPreference<bool>(Constants.settingsIsDarkModeOnParam) ?? false;
-  currentTheme = isDarkModeOn ? darkTheme : lightPurpleTheme;
+  currentTheme = isDarkModeOn ? darkGrayTheme : lightPurpleTheme;
   
   runApp(const App());
 }
@@ -49,7 +49,6 @@ class _AppState extends State<App> {
     return MaterialApp(
       title: "Divisor de comandas",
       theme: currentTheme,
-      // darkTheme: darkGreenTheme,
       home: const HomePage(title: "Divisor de comandas"),
       supportedLocales: const [
         Locale('en', 'US'),

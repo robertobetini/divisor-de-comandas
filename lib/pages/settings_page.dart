@@ -7,6 +7,7 @@ import '../themes.dart';
 import '../constants.dart';
 import '../db/db_context.dart';
 import '../main.dart';
+import 'pix_configuration_page.dart';
 
 final settingsRepository = SettingsRepository();
 final orderRepository = OrderRepository();
@@ -29,8 +30,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-
-
   @override
   Widget build(BuildContext context) {
     var isDarkModeOn = settingsRepository.getPreference<bool>(Constants.settingsIsDarkModeOnParam) ?? false;
@@ -44,14 +43,14 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             isDarkModeOn ? Icon(Icons.dark_mode) : Icon(Icons.light_mode),
             Switch(
-          value: isDarkModeOn,
-          onChanged: (value) {
-            setState(() {
-              settingsRepository.setPreference(Constants.settingsIsDarkModeOnParam, value);
-              App.setTheme(context, value ? darkTheme : lightPurpleTheme);
-            });
-          }
-        )
+              value: isDarkModeOn,
+              onChanged: (value) {
+                setState(() {
+                  settingsRepository.setPreference(Constants.settingsIsDarkModeOnParam, value);
+                  App.setTheme(context, value ? darkGrayTheme : lightPurpleTheme);
+                });
+              }
+            )
           ],
         ),
       ),
@@ -105,6 +104,14 @@ class _SettingsPageState extends State<SettingsPage> {
             );
           }
         },
+      ),
+      ListTile(
+        leading: Icon(Icons.account_balance_wallet),
+        title: const Text("Configurar chave PIX (WIP)"),
+        onTap: () {
+          var route = createPixConfigurationRoute(context);
+          Navigator.push(context, route);
+        }
       ),
       ListTile(
         leading: Icon(Icons.info_outline),

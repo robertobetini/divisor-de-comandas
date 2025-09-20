@@ -1,13 +1,16 @@
 import 'package:decimal/decimal.dart';
-import 'package:flutter/material.dart' as  material;
+import 'package:flutter/material.dart' as material;
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:pix_flutter/pix_flutter.dart';
+import '../constants.dart';
 import '../models/order.dart';
+import '../repositories/settings_repository.dart';
 import '../themes.dart';
 
 var dateFormatter = DateFormat("dd/MM/yyyy - HH:mm");
+final settingsRepository = SettingsRepository();
 
 PdfColor mapColor(material.Color? color) {
   if (color == null) {
@@ -28,7 +31,7 @@ class OrderPdfFactory {
   final totalTextStyle = TextStyle(fontWeight: FontWeight.bold, color: mapColor(currentTheme.listTileTheme.textColor));
   final conciliationWarningTextStyle = TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: mapColor(currentTheme.listTileTheme.textColor));
 
-  Document create(Order order) {
+  Future<Document> create(Order order) async {
     var pageTheme = PageTheme(
       buildBackground: (context) {
         return FullPage(
@@ -95,7 +98,8 @@ class OrderPdfFactory {
           ]
         )
       );
-      var payerDetailedItems = _createPayerDetailedItems(payer, order);
+
+      var payerDetailedItems = await _createPayerDetailedItems(payer, order);
 
       pdf.addPage(
         MultiPage(
@@ -159,7 +163,7 @@ class OrderPdfFactory {
     return summary;
   }
 
-  List<Widget> _createPayerDetailedItems(Payer payer, Order order) {
+  Future<List<Widget>> _createPayerDetailedItems(Payer payer, Order order) async {
     var items = payer.sharings
       .map<Widget>((sharing) {
         var totalPayerSharingPrice = sharing.getSharingSubtotal();
@@ -195,45 +199,47 @@ class OrderPdfFactory {
     );
 
     items.add(SizedBox(height: 40));    
+    
+    var includePixOnPdf = settingsRepository.getPreference<bool>(Constants.settingsIncludePixOnPdfParam) ?? false;
 
     if (payerTotal > Decimal.zero) {
-      var pix = PixFlutter(
-        payload: Payload(
-          pixKey: "Fake Key",
-          merchantName: "Fake Name",
-          merchantCity: "Fake City",
-          amount: payerTotal.toStringAsFixed(2),
-          txid: DateTime.now().toString()
-        )
-      );
+      if (includePixOnPdf) {
+        var pixReceiverName = settingsRepository.getPreference<String>(Constants.settingsCurrentNameParam);
+        var pixReceiverKey = settingsRepository.getPreference<String>(Constants.settingsCurrentPixKeyParam);
 
-      print(pix.getQRCode());
+        var pix = PixFlutter(
+          payload: Payload(
+            pixKey: pixReceiverKey,
+            merchantName: pixReceiverName,
+            merchantCity: "BR",
+            amount: payerTotal.toStringAsFixed(2),
+            txid: "***"
+          )
+        );
 
-      var barcode = BarcodeWidget(
-        color: mapColor(currentTheme.listTileTheme.textColor),
-        barcode: Barcode.qrCode(),
-        data: pix.getQRCode(),
-        width: 100,
-        height: 100
-      );
+        print(pix.getQRCode());
 
-      var pixItem = Center(
-        child: Column(
-          children: [
-            barcode,
-            SizedBox(height: 20),
-            Text("Atenção!", style: listSubtitleTextStyle),
-            Text("Sempre confirme o destinatário e o valor da transação antes de efetuá-la.", style: listSubtitleTextStyle)
-          ]
-        )
-      );
+        var barcode = BarcodeWidget(
+          color: mapColor(currentTheme.listTileTheme.textColor),
+          barcode: Barcode.qrCode(),
+          data: pix.getQRCode(),
+          width: 100,
+          height: 100
+        );
 
-      // items.add(barcode);
-      // items.add(SizedBox(height: 20));
-      // items.add(Text("Atenção!", style: listSubtitleTextStyle));
-      // items.add(Text("Sempre confirme o destinatário e o valor da transação antes de efetuá-la.", style: listSubtitleTextStyle));
+        var pixItem = Center(
+          child: Column(
+            children: [
+              barcode,
+              SizedBox(height: 20),
+              Text("Atenção!", style: listSubtitleTextStyle),
+              Text("Sempre confirme o destinatário e o valor da transação antes de efetuá-la.", style: listSubtitleTextStyle)
+            ]
+          )
+        );
 
-      items.add(pixItem);
+        items.add(pixItem);
+      }
     } else {
       items.add(
         Center(
@@ -250,13 +256,11 @@ class OrderPdfFactory {
     : Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Icon(IconData(Icons)),
-        // SizedBox(width: 8),
         Text("Existem itens não atribuídos na comanda", style: conciliationWarningTextStyle)
       ],
     );
 
-  Row _createItemTitle(OrderItem item, { bool showConciliationStatus = false }) { 
+  Row _createItemTitle(OrderItem item) { 
     var children = [
       Text(item.product.name, style: listTitleTextStyle)
     ];

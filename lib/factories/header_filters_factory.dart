@@ -1,7 +1,6 @@
-import 'package:divisao_contas/repositories/settings_repository.dart';
-import 'package:divisao_contas/themes.dart';
 import 'package:flutter/material.dart';
-
+import '../repositories/settings_repository.dart';
+import '../themes.dart';
 import '../constants.dart';
 
 var settingsRepository = SettingsRepository();

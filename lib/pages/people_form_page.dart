@@ -45,7 +45,7 @@ class _PeopleFormPageState extends State<PeopleFormPage> {
               controller,
               "Nome",
               64,
-              (value) => people?.name = value
+              onChanged: (value) => people?.name = value
             ),
           ),
           ElevatedButton(

@@ -1,12 +1,10 @@
-import 'package:divisao_contas/factories/order_pdf_factory.dart';
-import 'package:divisao_contas/factories/page_indicator_factory.dart';
-import 'package:divisao_contas/pages/order_summary_page/pdf_preview_page.dart';
 import 'package:flutter/material.dart';
+import '../../factories/page_indicator_factory.dart';
+import '../../pages/order_summary_page/pdf_preview_page.dart';
 import '../../repositories/order_repository.dart';
 import '../../models/order.dart';
-import '../../themes.dart';
-import './page_1.dart';
-import './page_2.dart';
+import 'page_1.dart';
+import 'page_2.dart';
 
 final orderRepository = OrderRepository();
 
@@ -62,9 +60,7 @@ class _OrderSummaryPageState extends State<OrderSummaryPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          var orderPdfFactory = OrderPdfFactory(currentTheme);
-          var pdf = orderPdfFactory.create(order);
-          var route = createPdfPreviewRoute(context, pdf);
+          var route = createPdfPreviewRoute(context, order);
           Navigator.push(context, route);
         },
         child: Icon(Icons.picture_as_pdf)

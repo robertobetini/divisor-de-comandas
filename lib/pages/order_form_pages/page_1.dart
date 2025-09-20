@@ -22,7 +22,7 @@ Widget createPage1(BuildContext context, Order order, Function setState, TextEdi
           descriptionController,
           "Descrição (opcional)",
           Constants.maxOrderDescriptionLength,
-          (value) => order.description = value
+          onChanged: (value) => order.description = value
         )
       ),
       Row(
