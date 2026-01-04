@@ -114,6 +114,25 @@ class _SettingsPageState extends State<SettingsPage> {
         }
       ),
       ListTile(
+        leading: Icon(Icons.bug_report),
+        title: const Text("Relatar problema"),
+        onTap: () {
+          showAdaptiveDialog(
+            context: context, 
+            builder: (context) => AlertDialog(
+              title: const Text("Relatar problema"), 
+              content: const Text("WIP"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("OK")
+                )
+              ],
+            )
+          );
+        },
+      ),
+      ListTile(
         leading: Icon(Icons.info_outline),
         title: const Text("Sobre"),
         onTap: () => showAboutDialog(
@@ -133,7 +152,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (kDebugMode) {
       items.add(
         ListTile(
-          leading: Icon(Icons.bug_report),
+          leading: Icon(Icons.science_outlined),
           title: Text("Gerar mocks para teste"),
           onTap: () async {
             var mockedOrders = DebugMockDataFactory.createManyOrders(20, maxItems: 20, maxPayers: 5);

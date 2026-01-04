@@ -44,8 +44,8 @@ class _PeopleFormPageState extends State<PeopleFormPage> {
             child: ConstrainedTextField(
               controller,
               "Nome",
-              64,
-              onChanged: (value) => people?.name = value
+              64
+              //onChanged: (value) => people?.name = value
             ),
           ),
           ElevatedButton(

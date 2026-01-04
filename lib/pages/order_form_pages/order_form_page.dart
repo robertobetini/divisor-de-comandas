@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../factories/page_indicator_factory.dart';
 import '../../models/order.dart';
 import '../../repositories/people_repository.dart';
+import '../../caches/cache.dart';
 import '../utils.dart';
 import 'page_1.dart';
 import 'page_2.dart';
@@ -31,7 +32,12 @@ class OrderFormPage extends StatefulWidget {
 
 class _OrderFormPageState extends State<OrderFormPage> {
   _OrderFormPageState(this.orderId) {
-    order = orderRepository.get(orderId ?? 0) ?? Order();
+    order = orderCache.get(orderId);
+    order ??= orderRepository.get(orderId ?? 0) ?? Order();
+
+    if (order != null) {
+      orderCache.set(order!.id, order);
+    }
   }
 
   final PageController _pageController = PageController();

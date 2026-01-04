@@ -6,6 +6,7 @@ import '../factories/header_filters_factory.dart';
 import '../factories/padded_list_tile_factory.dart';
 import '../repositories/order_repository.dart';
 import '../models/order.dart';
+import '../caches/cache.dart';
 import 'order_form_pages/order_form_page.dart';
 import 'order_summary_page/order_summary_page.dart';
 import 'utils.dart';
@@ -132,16 +133,22 @@ class _OrderPageState extends State<OrderPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          var route = createOrderFormRoute(context);
+          var order = Order();
+          orderRepository.add(order);
+
+          var route = createOrderFormRoute(context, orderId: order.id);
           var result = await Navigator.of(context).push(route);
           descriptionController.clear();
 
-          if (result != null) {
-            setState(() {
-              orderRepository.add(result as Order);
-              descriptionController.clear();
-            });
-          }
+          setState(() {
+            if (result != null) {
+              orderRepository.update(result as Order);
+              orderCache.remove(result.id);
+            }
+
+            descriptionController.clear();
+          });
+          
         },
         child: const Icon(Icons.format_list_bulleted_add)
       ),
